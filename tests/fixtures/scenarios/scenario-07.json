@@ -1,0 +1,148 @@
+{
+  "name": "scenario-07",
+  "description": "icon font glyphs; a question survives a detector idle; focusing a pane acknowledges its tick",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"font\"\nidle_grace_seconds = 0\n",
+  "mode": "active",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "ui",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w1:t2",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "activity": {},
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "cursor",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "x",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "kimi",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "y",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "3s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "cursor",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "x",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "kimi",
+          "agent_status": "blocked",
+          "focused": false,
+          "terminal_title_stripped": "y",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "6s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "cursor",
+          "agent_status": "idle",
+          "focused": true,
+          "terminal_title_stripped": "x",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "kimi",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "y",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "7s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "cursor",
+          "agent_status": "idle",
+          "focused": true,
+          "terminal_title_stripped": "x",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "kimi",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "y",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    }
+  ]
+}

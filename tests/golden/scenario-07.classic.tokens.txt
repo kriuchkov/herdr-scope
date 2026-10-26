@@ -1,0 +1,9 @@
+# icon font glyphs; a question survives a detector idle; focusing a pane acknowledges its tick
+Agents
+ ui{group}
+   {logo} ·  y{title_blocked}
+   {logo_fresh} · x{title_idle_fresh}
+   {gap}
+
+Spaces
+ {space_blocked} · ui{space_label}

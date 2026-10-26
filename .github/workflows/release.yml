@@ -1,0 +1,189 @@
+name: Release
+
+# A vX.Y.Z tag publishes:
+#   - a GitHub release with per-platform archives (binary, LICENSE,
+#     THIRD_PARTY_NOTICES.md) and SHA256SUMS;
+#   - the installable tree: one orphan commit holding the tagged source plus
+#     the prebuilt binaries at bin/herdr-scope-<os>-<arch>[.exe], force-pushed
+#     to the `release` branch and tagged vX.Y.Z-bin, so that
+#     `herdr plugin install <repo> --ref release` (or --ref vX.Y.Z-bin) needs
+#     no Go toolchain. A pre-release tag (vX.Y.Z-rc.1) gets its -bin tag but
+#     leaves `release` where it is.
+
+on:
+  push:
+    tags:
+      - 'v*'
+      # The -bin tags this workflow pushes are not releases.
+      - '!v*-bin'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Check the tag against the declared version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          case "$TAG" in
+            *-bin) echo "::error::$TAG is an install tag, not a release tag"; exit 1 ;;
+            v[0-9]*) ;;
+            *) echo "::error::$TAG is not a release tag (vX.Y.Z)"; exit 1 ;;
+          esac
+          version=${TAG#v}
+          manifest=$(sed -n 's/^version = "\(.*\)"$/\1/p' herdr-plugin.toml | head -n 1)
+          binary=$(sed -n 's/^const Version = "\(.*\)"$/\1/p' internal/bootstrap/version.go)
+          ok=true
+          if [ "$manifest" != "$version" ]; then
+            echo "::error file=herdr-plugin.toml::version is \"$manifest\" but the tag is $TAG"
+            ok=false
+          fi
+          if [ "$binary" != "$version" ]; then
+            echo "::error file=internal/bootstrap/version.go::Version is \"$binary\" but the tag is $TAG"
+            ok=false
+          fi
+          if [ "$ok" != true ]; then exit 1; fi
+          case "$version" in *-*) prerelease=true ;; *) prerelease=false ;; esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+          echo "Releasing $version (pre-release: $prerelease)"
+
+      - name: Test
+        run: go test -count=1 ./...
+
+      - name: Build the binaries
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          make dist VERSION="$VERSION"
+          test "$(find build/bin -type f | wc -l)" -eq 6
+          build/bin/herdr-scope-linux-amd64 version | grep -F "herdr-scope $VERSION "
+
+      - name: Package the archives
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          rm -rf build/pkg build/release
+          mkdir -p build/pkg build/release
+          for bin in build/bin/herdr-scope-*; do
+            platform=$(basename "$bin" .exe)
+            platform=${platform#herdr-scope-}
+            dir=herdr-scope-$VERSION-$platform
+            mkdir "build/pkg/$dir"
+            cp LICENSE THIRD_PARTY_NOTICES.md "build/pkg/$dir/"
+            case "$platform" in
+              windows-*)
+                cp "$bin" "build/pkg/$dir/herdr-scope.exe"
+                (cd build/pkg && zip -qrX "../release/$dir.zip" "$dir")
+                ;;
+              *)
+                install -m 755 "$bin" "build/pkg/$dir/herdr-scope"
+                tar -C build/pkg -czf "build/release/$dir.tar.gz" "$dir"
+                ;;
+            esac
+          done
+          (cd build/release && sha256sum -- *.tar.gz *.zip > SHA256SUMS && cat SHA256SUMS)
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: |
+            build/bin
+            build/release
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    # The only job that can write: it runs no project code.
+    permissions:
+      contents: write
+    concurrency:
+      group: release-publish
+      cancel-in-progress: false
+    env:
+      TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.build.outputs.version }}
+      PRERELEASE: ${{ needs.build.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: build
+
+      - name: Push the installable tree
+        run: |
+          git diff --quiet HEAD || { echo "::error::the tagged checkout has local changes"; exit 1; }
+          source=$(git rev-parse HEAD)
+          short=$(git rev-parse --short HEAD)
+          # Fixed identity and dates: the same tag and binaries make the same
+          # commit, so a re-run pushes nothing new and the -bin tag holds.
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME" GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          GIT_AUTHOR_DATE=$(git show -s --format=%cI HEAD)
+          export GIT_AUTHOR_DATE GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+
+          git checkout --quiet --orphan release-tree
+          # The install tree needs no CI, and pushing a commit that adds
+          # workflow files takes a permission GITHUB_TOKEN cannot have.
+          git rm -r --cached --quiet --ignore-unmatch .github
+          # .gitignore ignores /bin/; artifacts lose the executable bit.
+          mkdir -p bin
+          install -m 755 build/bin/herdr-scope-* bin/
+          git add -f bin/herdr-scope-*
+          git commit --quiet -m "release: $TAG ($short)" -m "Built from $source."
+          git tag "$TAG-bin"
+          git show -s --format='%H %s' HEAD
+          git ls-tree -l HEAD bin/
+
+          refs=("refs/tags/$TAG-bin")
+          if [ "$PRERELEASE" = false ]; then
+            refs+=("+HEAD:refs/heads/release")
+          fi
+          git push --atomic origin "${refs[@]}"
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          notes=$RUNNER_TEMP/notes.md
+          cat > "$notes" <<EOF
+          Install it as a Herdr plugin, prebuilt, with no Go toolchain needed:
+
+              herdr plugin install $GITHUB_REPOSITORY --ref $TAG-bin
+
+          Use --ref release instead to install the latest release. Without --ref, Herdr checks out the default branch and builds it from source, which needs Go 1.26 or newer.
+
+          The archives hold the same binaries with LICENSE and THIRD_PARTY_NOTICES.md; SHA256SUMS lists their checksums.
+          EOF
+          flags=()
+          if [ "$PRERELEASE" = true ]; then
+            flags+=(--prerelease)
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" build/release/* --clobber
+          else
+            gh release create "$TAG" build/release/* --verify-tag \
+              --title "herdr-scope $VERSION" --notes-file "$notes" "${flags[@]}"
+          fi

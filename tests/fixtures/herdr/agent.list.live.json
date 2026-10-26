@@ -1,0 +1,91 @@
+{
+  "_comment": "Shape of a live Herdr 0.9.5 agent.list (Claude Code with a session reference, a mirrored pane with a metadata title, an integration-backed pane, a GLM wrapper declaring display_agent). Values are invented; field presence and types are as observed.",
+  "id": "probe",
+  "result": {
+    "type": "agent_list",
+    "agents": [
+      {
+        "terminal_id": "term_5c0ffee01a2b3c",
+        "agent": "claude",
+        "terminal_title": "✳ Add rate limits to the API",
+        "terminal_title_stripped": "Add rate limits to the API",
+        "agent_status": "idle",
+        "agent_session": { "source": "herdr:claude", "agent": "claude", "kind": "id", "value": "5f0c2a7e-91d4-4b3e-8a6f-0c1d2e3f4a5b" },
+        "workspace_id": "w6",
+        "tab_id": "w6:t2",
+        "pane_id": "w6:p2",
+        "focused": false,
+        "state_change_seq": 45,
+        "completion_seq": 45,
+        "cwd": "/home/user/src/dashboard",
+        "foreground_cwd": "/home/user/src/dashboard",
+        "revision": 8,
+        "tokens": { "state_done": "✓", "title_done": "✓ Add rate limits to the API", "logo": "§", "sort_key": "029710390000" }
+      },
+      {
+        "terminal_id": "term_5c0ffee04d5e6f7",
+        "agent": "codex",
+        "terminal_title": "dashboard",
+        "terminal_title_stripped": "dashboard",
+        "title": null,
+        "agent_status": "working",
+        "workspace_id": "w6",
+        "tab_id": "w6:t3",
+        "pane_id": "w6:p3",
+        "focused": true,
+        "state_change_seq": 589,
+        "cwd": "/home/user/src/dashboard",
+        "foreground_cwd": "/home/user/src/dashboard",
+        "revision": 8
+      },
+      {
+        "terminal_id": "term_5c0ffee07a8b9c0",
+        "agent": "opencode",
+        "terminal_title": "",
+        "terminal_title_stripped": "",
+        "title": "Remote: rename ledger columns",
+        "agent_status": "idle",
+        "screen_detection_skipped": true,
+        "workspace_id": "w8",
+        "tab_id": "w8:t1",
+        "pane_id": "w8:p1",
+        "focused": false,
+        "state_change_seq": 12,
+        "cwd": "/home/user/src/billing",
+        "foreground_cwd": null,
+        "revision": 3,
+        "tokens": { "state_blocked": "?", "title_blocked": "? Which port?" }
+      },
+      {
+        "terminal_id": "term_5c0ffee07a8b999",
+        "agent": "claude",
+        "display_agent": "GLM",
+        "terminal_title": "[ ! ] Action Required | billing",
+        "terminal_title_stripped": "[ ! ] Action Required | billing",
+        "agent_status": "blocked",
+        "workspace_id": "w8",
+        "tab_id": "w8:t2",
+        "pane_id": "w8:p2",
+        "focused": false,
+        "revision": 1
+      },
+      {
+        "terminal_id": "",
+        "agent": "droid",
+        "agent_status": "unknown",
+        "workspace_id": "w8",
+        "tab_id": "w8:t3",
+        "pane_id": "w8:p3",
+        "focused": false,
+        "revision": 1
+      },
+      {
+        "agent": "claude",
+        "workspace_id": "w8",
+        "tab_id": "w8:t4",
+        "focused": false,
+        "revision": 1
+      }
+    ]
+  }
+}

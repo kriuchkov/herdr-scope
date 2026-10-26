@@ -1,0 +1,9 @@
+# done_hold 30 s expires; a hook-owned idle releases a held question; the idle grace absorbs a flap
+Agents
+ svc
+   Λ c
+   ◇ b
+   § a
+
+Spaces
+ § svc

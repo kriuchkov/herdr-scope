@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (race)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Run tests
+        run: go test -race -count=1 ./...
+
+  lint:
+    # Like `make lint`: the code has unix and windows variants, so lint each
+    # platform the plugin ships for.
+    name: Lint (${{ matrix.goos }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [ linux, darwin, windows ]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        env:
+          GOOS: ${{ matrix.goos }}
+        with:
+          # Keep in step with the golangci-lint `make lint` runs locally.
+          version: v2.12.2
+          args: --config .golangci.yaml
+
+  dist:
+    # A broken cross-compile shows up here, not when a release tag is pushed.
+    name: Cross-compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Build the release binaries
+        run: make dist
+      # Both paths of the install build step: a release tree's prebuilt binary,
+      # then a source tree with no binaries.
+      - name: Check the install step
+        run: |
+          shellcheck scripts/build.sh
+          mkdir -p bin
+          cp build/bin/herdr-scope-linux-amd64 bin/
+          sh scripts/build.sh | tee build/install.log
+          grep -q 'installed the prebuilt' build/install.log
+          bin/herdr-scope version
+          rm -rf bin
+          sh scripts/build.sh | tee build/install.log
+          grep -q 'building from source' build/install.log
+          bin/herdr-scope version

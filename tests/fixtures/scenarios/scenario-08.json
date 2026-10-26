@@ -1,0 +1,190 @@
+{
+  "name": "scenario-08",
+  "description": "a pane moves to another workspace (new pane id, same terminal) and keeps its tick; a closed pane loses its tokens; display_agent names a known vendor",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"text\"\nidle_grace_seconds = 0\n",
+  "mode": "active",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "a",
+      "focused": false
+    },
+    {
+      "workspace_id": "w2",
+      "number": 2,
+      "label": "b",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w1:t2",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w2:t1",
+      "workspace_id": "w2",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "activity": {
+    "w2:p1": "-20m"
+  },
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_m",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "moving",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "closing",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "glm task",
+          "cwd": "/home/user/src/w2",
+          "revision": 1,
+          "display_agent": "GLM"
+        }
+      ]
+    },
+    {
+      "at": "3s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_m",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "moving",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "closing",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "glm task",
+          "cwd": "/home/user/src/w2",
+          "revision": 1,
+          "display_agent": "GLM"
+        }
+      ]
+    },
+    {
+      "at": "6s",
+      "agents": [
+        {
+          "pane_id": "w2:p2",
+          "terminal_id": "term_m",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "moving",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "glm task",
+          "cwd": "/home/user/src/w2",
+          "revision": 1,
+          "display_agent": "GLM"
+        }
+      ]
+    },
+    {
+      "at": "7s",
+      "agents": [
+        {
+          "pane_id": "w2:p2",
+          "terminal_id": "term_m",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "moving",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "glm task",
+          "cwd": "/home/user/src/w2",
+          "revision": 1,
+          "display_agent": "GLM"
+        }
+      ]
+    }
+  ]
+}

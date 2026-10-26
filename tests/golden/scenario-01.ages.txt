@@ -1,0 +1,18 @@
+# The README panel: a busy project with a worktree, a dormant one, every state once. Two frames, so a working->idle turn end produces the held tick. Five minutes on, with show_age = all.
+Agents
+ dashboard
+   § ⣷ 5m Add rate limits to the API
+   § ✓ 4m Cache search results
+   └─ feature/rate-limits
+     Λ Which branch should I rebase?
+ billing
+   § 8m Fix the rounding bug
+   ✦ 2h Rename the ledger columns
+ notes
+   ❖ ◌
+
+Spaces
+ § dashboard
+ Λ feature/rate-limits
+ § billing
+ ◌ notes

@@ -1,0 +1,11 @@
+# split_corner on, row_label both: panes of one tab hang off the first
+Agents
+ proj
+   § · review lead
+   ├─ · Λ · review right
+   └─ · ✦ · review bottom
+   § · 2 alone
+
+
+Spaces
+ § · proj
