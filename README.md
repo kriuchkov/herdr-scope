@@ -23,7 +23,7 @@ prompts or stops an agent.
 
 ## Features
 
-![Herdr with Scope: a question pulses, a turn finishes, ctrl+b u jumps to each](docs/demo/scope.gif)
+![Herdr with Scope: a folder of five agents folds to one line, a finished turn and a question stay in sight, ctrl+b u jumps to each](docs/demo/scope.gif)
 
 - **State at a glance**: a spinner while an agent works, a red `?` when it asks, a green `✓`
   held until you look, and idle rows that fade with age.

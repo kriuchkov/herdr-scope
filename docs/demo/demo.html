@@ -22,48 +22,67 @@ html, body { margin: 0; background: #000; }
 <body>
 <div id="screen"></div>
 <script>
-const COLS = 96, ROWS = 26, SIDE = 34, PANE = SIDE + 1;
-const STEP_MS = 150, FRAMES = 96;
+const COLS = 96, ROWS = 31, SIDE = 34, PANE = SIDE + 1;
+const STEP_MS = 150, FRAMES = 100;
 
 // Herdr's catppuccin chrome and Scope's dark palette as shipped.
 const C = { o0: '#6c7086', head: '#a6adc8', text: '#cdd6f4', rule: '#313244', accent: '#89b4fa', tabInk: '#11111b', focus: '#232636', chip: '#313244' };
-const S = { done: '#4c9a5a', blocked: '#c04a4a', none: '#9a9eb3', fresh: '#c8cde0', stale: '#6b6f82', spaceIdle: '#8f95ab', subtle: '#a8abbd', ink: '#e9e9f0', other: '#c78a1f' };
+const S = { done: '#4c9a5a', blocked: '#c04a4a', none: '#9a9eb3', fresh: '#c8cde0', idle: '#9499ad', stale: '#6b6f82', spaceIdle: '#8f95ab', subtle: '#a8abbd', ink: '#e9e9f0', other: '#c78a1f' };
 const BRAND = { claude: '#d97757', gemini: '#4285f4' };
 const cp = String.fromCodePoint;
 const LOGO = { claude: cp(0xe1a0), codex: cp(0xe1a1), gemini: cp(0xe1ae) };
-const MARK = { done: cp(0xe1c0), blocked: cp(0xe1c1), ring: cp(0xe1c2), none: '◦', worktree: cp(0xf418) };
+const MARK = { done: cp(0xe1c0), blocked: cp(0xe1c1), ring: cp(0xe1c2), worktree: cp(0xf418) };
 const SPIN = ['⣷', '⣯', '⣟', '⡿', '⢿', '⣻', '⣽', '⣾'];
 const resting = (step) => Math.floor(step / 5) % 2 === 1;
 
-// The story, in frames: codex asks, claude finishes, prefix+u jumps to the
-// question, the answer sends codex back to work, prefix+u again lands on the
-// finished turn and takes its tick.
-const T = { ask: 18, done: 32, hint1: 42, jump1: 48, type: 54, answer: 58, hint2: 68, jump2: 74 };
+// The story, in frames: prefix+m folds acme to one line; billing finishes
+// and stays under it; limits asks; prefix+u jumps to the question, the answer
+// sends it back to work; prefix+u again lands on billing and takes its tick;
+// prefix+m unfolds acme.
+const T = { fold: 16, done: 26, ask: 34, jump1: 46, type: 52, answer: 56, jump2: 68, unfold: 84 };
+const KEYS = [
+  { at: T.fold, key: 'ctrl+b m', says: 'fold this folder' },
+  { at: T.jump1, key: 'ctrl+b u', says: 'jump to the next agent waiting on you' },
+  { at: T.jump2, key: 'ctrl+b u', says: 'jump to the next agent waiting on you' },
+  { at: T.unfold, key: 'ctrl+b m', says: 'unfold it' },
+];
+
+// Two families: acme, a folder of repositories, and dashboard with a worktree.
+const FAMILIES = [
+  { root: 'acme', members: ['acme', 'web', 'api', 'billing', 'search'] },
+  { root: 'dashboard', members: ['dashboard', 'limits'] },
+];
+const SPACES = [
+  { ws: 'acme', path: '~/src/acme' },
+  { ws: 'web', parent: 'acme', path: '~/src/acme/web' },
+  { ws: 'api', parent: 'acme', path: '~/src/acme/api' },
+  { ws: 'billing', parent: 'acme', path: '~/src/acme/billing' },
+  { ws: 'search', parent: 'acme', path: '~/src/acme/search' },
+  { ws: 'dashboard', toggle: true, path: '~/src/dashboard' },
+  { ws: 'limits', worktree: 'rate-limits', path: '~/src/dashboard-limits' },
+];
 
 function scene(f) {
-  const focus = f < T.jump1 ? 'billing' : f < T.jump2 ? 'api' : 'dashboard';
   return {
-    focus,
-    hint: (f >= T.hint1 && f < T.jump1 + 4) || (f >= T.hint2 && f < T.jump2 + 4),
+    focus: f < T.jump1 ? 'acme' : f < T.jump2 ? 'limits' : 'billing',
+    folded: f >= T.fold && f < T.unfold,
+    key: KEYS.find((k) => f >= k.at - 6 && f < k.at + 4),
     agents: [
-      { ws: 'dashboard', kind: 'claude', st: f < T.done ? 'working' : f < T.jump2 ? 'done' : 'fresh', title: 'Add API rate limits' },
-      { ws: 'api', kind: 'codex', st: f >= T.ask && f < T.answer ? 'blocked' : 'working', title: 'Cache search results', worktree: 'rate-limits' },
-      { ws: 'billing', kind: 'gemini', st: 'fresh', title: 'Fix the rounding bug' },
-      { ws: 'notes', kind: 'claude', st: 'stale', title: 'Rename ledger columns' },
+      { ws: 'acme', kind: 'claude', st: 'working', title: 'Plan the onboarding' },
+      { ws: 'web', kind: 'codex', st: 'working', title: 'Fix the login redirect' },
+      { ws: 'api', kind: 'gemini', st: 'fresh', title: 'Add a health check' },
+      { ws: 'billing', kind: 'claude', st: f < T.done ? 'working' : f < T.jump2 ? 'done' : 'fresh', title: 'Fix the rounding bug' },
+      { ws: 'search', kind: 'codex', st: 'idle', title: 'Tune the ranking' },
+      { ws: 'dashboard', kind: 'claude', st: 'fresh', title: 'Add API rate limits' },
+      { ws: 'limits', kind: 'codex', st: f >= T.ask && f < T.answer ? 'blocked' : 'working', title: 'Cache search results' },
     ],
   };
 }
 
-const SPACES = [
-  { ws: 'dashboard', toggle: true, path: '~/src/dashboard', branch: 'main' },
-  { ws: 'api', worktree: '   └─ ', branch: 'rate-limits', path: '~/src/dashboard-api' },
-  { ws: 'billing', path: '~/src/billing', branch: 'main' },
-  { ws: 'notes', path: '~/notes', branch: 'main' },
-  { ws: 'docs', path: '~/src/docs', branch: 'main' },
-];
-
 const active = (st) => st === 'working' || st === 'blocked' || st === 'done';
-const titleFg = (a) => ({ working: BRAND[a.kind] || S.other, done: S.done, blocked: S.blocked, fresh: S.fresh, stale: S.stale })[a.st];
+const waiting = (a) => a.st === 'blocked' || a.st === 'done';
+const brand = (kind) => BRAND[kind] || S.other;
+const titleFg = (a) => ({ working: brand(a.kind), done: S.done, blocked: S.blocked, fresh: S.fresh, idle: S.idle, stale: S.stale })[a.st];
 const logoFg = (a) => (a.st === 'stale' ? S.stale : active(a.st) ? BRAND[a.kind] || S.ink : titleFg(a));
 const lead = (a, step) => {
   if (a.st === 'working') return SPIN[step % SPIN.length] + ' ';
@@ -72,8 +91,7 @@ const lead = (a, step) => {
   return '';
 };
 const spaceMark = (a, step) => {
-  if (!a) return [MARK.none, S.none, false];
-  if (a.st === 'working') return [LOGO[a.kind], BRAND[a.kind] || S.other, true];
+  if (a.st === 'working') return [LOGO[a.kind], brand(a.kind), true];
   if (a.st === 'blocked') return [resting(step) ? LOGO[a.kind] : MARK.blocked, S.blocked, true];
   if (a.st === 'done') return [MARK.done, S.done, true];
   return [LOGO[a.kind], S.spaceIdle, false];
@@ -101,40 +119,65 @@ function frame(f) {
   };
   const agentOf = (ws) => s.agents.find((a) => a.ws === ws);
 
-  // Spaces.
+  // Spaces: Herdr gives every workspace a line, folded or not; Scope draws
+  // the folder corners.
   put(0, 1, 'spaces', C.head, true);
+  const nested = SPACES.filter((sp) => sp.parent);
   SPACES.forEach((sp, i) => {
     const row = 2 + i;
     if (sp.ws === s.focus) fill(row, 0, SIDE, C.focus);
     const [mark, fg, bold] = spaceMark(agentOf(sp.ws), step);
     if (sp.worktree) {
-      const col = put(row, 0, sp.worktree, C.o0);
-      line(row, col, [[mark, fg, bold], [sp.ws, S.none], [sp.branch, S.none]]);
+      line(row, put(row, 0, '   └─ ', C.o0), [[mark, fg, bold], [sp.ws, S.none], [sp.worktree, S.none]]);
     } else {
-      line(row, 1, [[mark, fg, bold], [sp.ws, S.none]]);
+      const corner = sp.parent ? '  ' + (nested[nested.length - 1] === sp ? '└─ ' : '├─ ') : '';
+      line(row, 1, [[corner + mark, fg, bold], [sp.ws, S.none]]);
     }
     if (sp.toggle) put(row, SIDE - 2, '▾', C.accent);
   });
-  put(9, 1, 'new', C.o0);
-  put(9, SIDE - 5, 'menu', C.o0);
-  put(10, 0, '─'.repeat(SIDE), C.rule);
-  put(11, 1, 'agents', C.head, true);
-  put(11, SIDE - 7, 'active', C.accent, true);
+  put(10, 1, 'new', C.o0);
+  put(10, SIDE - 5, 'menu', C.o0);
+  put(11, 0, '─'.repeat(SIDE), C.rule);
+  put(12, 1, 'agents', C.head, true);
+  put(12, SIDE - 7, 'active', C.accent, true);
 
-  // Agents: each entry is its lines; the focused entry is filled whole, its
-  // group header and gap included.
-  const header = (name, stale) => [1, [[name, stale ? S.stale : S.subtle, true]]];
+  // Agents: each entry is its lines, and the focused one is filled whole. A
+  // folded family is one line, `▸ acme · Λ ⣯ +4`: how many it hides, behind
+  // the logo and spinner of one at work. Who waits on you and the focus stay.
   const row = (a, indent) => [indent, [[LOGO[a.kind], logoFg(a)], [lead(a, step) + a.title, titleFg(a), a.st === 'working']]];
-  const [claude, codex, gemini, notes] = s.agents;
-  const entries = [
-    { a: claude, lines: [header('dashboard'), row(claude, 3)] },
-    { a: codex, lines: [[3, [['└─ ' + MARK.worktree + ' ' + codex.worktree, S.subtle, true]]], row(codex, 5), null] },
-    { a: gemini, lines: [header('billing'), row(gemini, 3), null] },
-    { a: notes, lines: [header('notes', true), row(notes, 3)] },
-  ];
-  let r = 13;
+  const entries = [];
+  FAMILIES.forEach((fam, gi) => {
+    const last = gi === FAMILIES.length - 1;
+    const folded = s.folded && fam.root === 'acme';
+    const members = fam.members.map(agentOf);
+    const shown = members.filter((a) => !folded || waiting(a) || a.ws === s.focus);
+    const hidden = members.filter((a) => !shown.includes(a));
+    if (folded) {
+      const busy = hidden.find((a) => a.st === 'working');
+      const count = (busy ? LOGO[busy.kind] + ' ' + SPIN[step % SPIN.length] + ' ' : '') + '+' + hidden.length;
+      const fold = { lines: [[1, [['▸ ' + fam.root, S.subtle, true], [count, busy ? brand(busy.kind) : S.stale]]]] };
+      if (!shown.length && !last) fold.lines.push(null);
+      entries.push(fold);
+    }
+    shown.forEach((a, i) => {
+      const lines = [];
+      if (i === 0 && !folded) lines.push([1, [[fam.root, S.subtle, true]]]);
+      if (a.ws === fam.root) {
+        lines.push(row(a, 3));
+      } else {
+        const more = shown.slice(i + 1).some((b) => b.ws !== fam.root);
+        const sp = SPACES.find((x) => x.ws === a.ws);
+        const label = sp.worktree ? MARK.worktree + ' ' + sp.worktree : a.ws;
+        lines.push([3, [[(more ? '├─ ' : '└─ ') + label, S.subtle, true]]]);
+        lines.push(row(a, 5));
+      }
+      if (i === shown.length - 1 && !last) lines.push(null);
+      entries.push({ ws: a.ws, lines });
+    });
+  });
+  let r = 14;
   entries.forEach((e) => e.lines.forEach((l) => {
-    if (e.a.ws === s.focus) fill(r, 0, SIDE, C.focus);
+    if (e.ws === s.focus) fill(r, 0, SIDE, C.focus);
     if (l) line(r, l[0], l[1]);
     r++;
   }));
@@ -145,31 +188,31 @@ function frame(f) {
   // and Scope's line on the right: who waits, then the path and branch.
   const focused = agentOf(s.focus);
   const space = SPACES.find((sp) => sp.ws === s.focus);
-  const tabMark = focused && focused.st === 'blocked' ? ' ?' : focused && focused.st === 'done' ? ' ✓' : '';
+  const tabMark = focused.st === 'blocked' ? ' ?' : focused.st === 'done' ? ' ✓' : '';
   let col = put(0, PANE, '   1' + tabMark + '   ', C.tabInk, true, C.accent);
   put(0, col + 1, '+', C.o0);
   const asks = s.agents.filter((a) => a.st === 'blocked').length;
   const done = s.agents.filter((a) => a.st === 'done').length;
   const badge = [asks ? '?' + asks : '', done ? '✓' + done : ''].filter(Boolean).join(' ');
-  const right = [badge, space.path, space.branch].filter(Boolean).join(' · ');
+  const right = [badge, space.path, space.worktree || 'main'].filter(Boolean).join(' · ');
   put(0, COLS - 1 - Array.from(right).length, right, C.head);
 
   // The pane: the focused agent's conversation.
   const say = (row, text, fg, bold) => put(row, PANE + 3, text, fg || C.head, bold);
   const ask = (row, text) => { put(row, PANE + 1, '›', C.accent, true); say(row, text, C.text); };
   const passed = (row, text) => { put(row, PANE + 3, '✓', S.done); put(row, PANE + 5, text, C.head); };
+  const busy = (row, text, kind) => say(row, SPIN[step % SPIN.length] + ' ' + text, brand(kind), true);
   const cursor = (row, typed) => {
     put(row, PANE + 1, '›', C.accent, true);
     const at = say(row, typed, C.text);
     if (Math.floor(step / 3) % 2 === 0) put(row, at, '█', C.o0);
   };
-  if (s.focus === 'billing') {
-    ask(2, 'Fix the rounding bug in invoice totals');
-    say(4, 'Totals now round half-even to the cent in');
-    say(5, 'ledger.Round, with a table test for the halves.');
-    passed(7, 'go test ./...   42 passed');
-    cursor(9, '');
-  } else if (s.focus === 'api') {
+  if (s.focus === 'acme') {
+    ask(2, 'Plan the onboarding flow for new teams');
+    say(4, 'Drafting docs/onboarding.md: the invite, the');
+    say(5, 'first project, the first deploy.');
+    busy(7, 'Reading web/signup and api/teams', 'claude');
+  } else if (s.focus === 'limits') {
     ask(2, 'Cache search results for 30 seconds');
     say(4, 'Added an LRU in search/cache.go, keyed by the');
     say(5, 'normalised query; a hit skips the index.');
@@ -180,21 +223,20 @@ function frame(f) {
       cursor(11, f >= T.type ? '1' : '');
     } else {
       ask(11, '1');
-      say(13, SPIN[step % SPIN.length] + ' Rebasing onto main', S.other, true);
+      busy(13, 'Rebasing onto main', 'codex');
     }
   } else {
-    ask(2, 'Add rate limits to the API');
-    say(4, 'Every API key gets a token bucket of 100');
-    say(5, 'requests a minute; past it the server answers');
-    say(6, '429 with Retry-After.');
-    passed(8, '6 files changed, tests pass');
-    cursor(10, '');
+    ask(2, 'Fix the rounding bug in invoice totals');
+    say(4, 'Totals now round half-even to the cent in');
+    say(5, 'ledger.Round, with a table test for the halves.');
+    passed(7, 'go test ./...   42 passed');
+    cursor(9, '');
   }
 
   // The key just pressed.
-  if (s.hint) {
-    col = put(ROWS - 2, PANE + 2, ' ctrl+b u ', C.text, true, C.chip);
-    put(ROWS - 2, col + 2, 'jump to the next agent waiting on you', C.o0);
+  if (s.key) {
+    col = put(ROWS - 2, PANE + 2, ' ' + s.key.key + ' ', C.text, true, C.chip);
+    put(ROWS - 2, col + 2, s.key.says, C.o0);
   }
   return grid;
 }
