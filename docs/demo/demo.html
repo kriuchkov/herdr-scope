@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herdr Scope demo</title>
+<!-- The README animation: Herdr's chrome with Scope's sidebar, one frame per
+     spinner step. Open it to watch; record.sh shoots it frame by frame
+     (demo.html?f=N) into scope.gif. -->
+<style>
+@font-face {
+  font-family: "Herdr Icons";
+  src: url("../../dist/HerdrAgentIconsMax-Regular.ttf") format("truetype");
+  unicode-range: U+E1A0-E1C5;
+}
+html, body { margin: 0; background: #000; }
+#screen { font: 15px/20px "Herdr Icons", "JetBrainsMono Nerd Font Mono", "JetBrains Mono", Menlo, monospace; }
+#screen .row { position: relative; height: 20px; white-space: nowrap; }
+#screen .row > div { position: absolute; inset: 0; }
+#screen span { display: inline-block; width: 9px; height: 20px; text-align: center; vertical-align: top; overflow: visible; }
+</style>
+</head>
+<body>
+<div id="screen"></div>
+<script>
+const COLS = 96, ROWS = 26, SIDE = 34, PANE = SIDE + 1;
+const STEP_MS = 150, FRAMES = 96;
+
+// Herdr's catppuccin chrome and Scope's dark palette as shipped.
+const C = { o0: '#6c7086', head: '#a6adc8', text: '#cdd6f4', rule: '#313244', accent: '#89b4fa', tabInk: '#11111b', focus: '#232636', chip: '#313244' };
+const S = { done: '#4c9a5a', blocked: '#c04a4a', none: '#9a9eb3', fresh: '#c8cde0', stale: '#6b6f82', spaceIdle: '#8f95ab', subtle: '#a8abbd', ink: '#e9e9f0', other: '#c78a1f' };
+const BRAND = { claude: '#d97757', gemini: '#4285f4' };
+const cp = String.fromCodePoint;
+const LOGO = { claude: cp(0xe1a0), codex: cp(0xe1a1), gemini: cp(0xe1ae) };
+const MARK = { done: cp(0xe1c0), blocked: cp(0xe1c1), ring: cp(0xe1c2), none: '◦', worktree: cp(0xf418) };
+const SPIN = ['⣷', '⣯', '⣟', '⡿', '⢿', '⣻', '⣽', '⣾'];
+const resting = (step) => Math.floor(step / 5) % 2 === 1;
+
+// The story, in frames: codex asks, claude finishes, prefix+u jumps to the
+// question, the answer sends codex back to work, prefix+u again lands on the
+// finished turn and takes its tick.
+const T = { ask: 18, done: 32, hint1: 42, jump1: 48, type: 54, answer: 58, hint2: 68, jump2: 74 };
+
+function scene(f) {
+  const focus = f < T.jump1 ? 'billing' : f < T.jump2 ? 'api' : 'dashboard';
+  return {
+    focus,
+    hint: (f >= T.hint1 && f < T.jump1 + 4) || (f >= T.hint2 && f < T.jump2 + 4),
+    agents: [
+      { ws: 'dashboard', kind: 'claude', st: f < T.done ? 'working' : f < T.jump2 ? 'done' : 'fresh', title: 'Add API rate limits' },
+      { ws: 'api', kind: 'codex', st: f >= T.ask && f < T.answer ? 'blocked' : 'working', title: 'Cache search results', worktree: 'rate-limits' },
+      { ws: 'billing', kind: 'gemini', st: 'fresh', title: 'Fix the rounding bug' },
+      { ws: 'notes', kind: 'claude', st: 'stale', title: 'Rename ledger columns' },
+    ],
+  };
+}
+
+const SPACES = [
+  { ws: 'dashboard', toggle: true, path: '~/src/dashboard', branch: 'main' },
+  { ws: 'api', worktree: '   └─ ', branch: 'rate-limits', path: '~/src/dashboard-api' },
+  { ws: 'billing', path: '~/src/billing', branch: 'main' },
+  { ws: 'notes', path: '~/notes', branch: 'main' },
+  { ws: 'docs', path: '~/src/docs', branch: 'main' },
+];
+
+const active = (st) => st === 'working' || st === 'blocked' || st === 'done';
+const titleFg = (a) => ({ working: BRAND[a.kind] || S.other, done: S.done, blocked: S.blocked, fresh: S.fresh, stale: S.stale })[a.st];
+const logoFg = (a) => (a.st === 'stale' ? S.stale : active(a.st) ? BRAND[a.kind] || S.ink : titleFg(a));
+const lead = (a, step) => {
+  if (a.st === 'working') return SPIN[step % SPIN.length] + ' ';
+  if (a.st === 'blocked') return (resting(step) ? MARK.ring : MARK.blocked) + ' ';
+  if (a.st === 'done') return MARK.done + ' ';
+  return '';
+};
+const spaceMark = (a, step) => {
+  if (!a) return [MARK.none, S.none, false];
+  if (a.st === 'working') return [LOGO[a.kind], BRAND[a.kind] || S.other, true];
+  if (a.st === 'blocked') return [resting(step) ? LOGO[a.kind] : MARK.blocked, S.blocked, true];
+  if (a.st === 'done') return [MARK.done, S.done, true];
+  return [LOGO[a.kind], S.spaceIdle, false];
+};
+
+function frame(f) {
+  const step = f;
+  const s = scene(f);
+  const grid = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => ({ c: ' ' })));
+  const put = (row, col, text, fg, bold, bg) => {
+    for (const ch of Array.from(text)) {
+      if (col >= COLS) break;
+      grid[row][col] = { c: ch, fg, bold, bg: bg || grid[row][col].bg };
+      col++;
+    }
+    return col;
+  };
+  const fill = (row, from, to, bg) => { for (let c = from; c < to; c++) grid[row][c].bg = bg; };
+  // A sidebar line: cells joined with Herdr's " · ".
+  const line = (row, col, cells) => {
+    cells.forEach(([t, fg, bold], i) => {
+      if (i > 0) col = put(row, col, ' · ', C.o0);
+      col = put(row, col, t, fg, bold);
+    });
+  };
+  const agentOf = (ws) => s.agents.find((a) => a.ws === ws);
+
+  // Spaces.
+  put(0, 1, 'spaces', C.head, true);
+  SPACES.forEach((sp, i) => {
+    const row = 2 + i;
+    if (sp.ws === s.focus) fill(row, 0, SIDE, C.focus);
+    const [mark, fg, bold] = spaceMark(agentOf(sp.ws), step);
+    if (sp.worktree) {
+      const col = put(row, 0, sp.worktree, C.o0);
+      line(row, col, [[mark, fg, bold], [sp.ws, S.none], [sp.branch, S.none]]);
+    } else {
+      line(row, 1, [[mark, fg, bold], [sp.ws, S.none]]);
+    }
+    if (sp.toggle) put(row, SIDE - 2, '▾', C.accent);
+  });
+  put(9, 1, 'new', C.o0);
+  put(9, SIDE - 5, 'menu', C.o0);
+  put(10, 0, '─'.repeat(SIDE), C.rule);
+  put(11, 1, 'agents', C.head, true);
+  put(11, SIDE - 7, 'active', C.accent, true);
+
+  // Agents: each entry is its lines; the focused entry is filled whole, its
+  // group header and gap included.
+  const header = (name, stale) => [1, [[name, stale ? S.stale : S.subtle, true]]];
+  const row = (a, indent) => [indent, [[LOGO[a.kind], logoFg(a)], [lead(a, step) + a.title, titleFg(a), a.st === 'working']]];
+  const [claude, codex, gemini, notes] = s.agents;
+  const entries = [
+    { a: claude, lines: [header('dashboard'), row(claude, 3)] },
+    { a: codex, lines: [[3, [['└─ ' + MARK.worktree + ' ' + codex.worktree, S.subtle, true]]], row(codex, 5), null] },
+    { a: gemini, lines: [header('billing'), row(gemini, 3), null] },
+    { a: notes, lines: [header('notes', true), row(notes, 3)] },
+  ];
+  let r = 13;
+  entries.forEach((e) => e.lines.forEach((l) => {
+    if (e.a.ws === s.focus) fill(r, 0, SIDE, C.focus);
+    if (l) line(r, l[0], l[1]);
+    r++;
+  }));
+  put(ROWS - 1, SIDE - 2, '«', C.o0);
+  for (let y = 0; y < ROWS; y++) put(y, SIDE, '│', C.rule);
+
+  // The tab bar: the focused workspace's tab, marked while its agent waits,
+  // and Scope's line on the right: who waits, then the path and branch.
+  const focused = agentOf(s.focus);
+  const space = SPACES.find((sp) => sp.ws === s.focus);
+  const tabMark = focused && focused.st === 'blocked' ? ' ?' : focused && focused.st === 'done' ? ' ✓' : '';
+  let col = put(0, PANE, '   1' + tabMark + '   ', C.tabInk, true, C.accent);
+  put(0, col + 1, '+', C.o0);
+  const asks = s.agents.filter((a) => a.st === 'blocked').length;
+  const done = s.agents.filter((a) => a.st === 'done').length;
+  const badge = [asks ? '?' + asks : '', done ? '✓' + done : ''].filter(Boolean).join(' ');
+  const right = [badge, space.path, space.branch].filter(Boolean).join(' · ');
+  put(0, COLS - 1 - Array.from(right).length, right, C.head);
+
+  // The pane: the focused agent's conversation.
+  const say = (row, text, fg, bold) => put(row, PANE + 3, text, fg || C.head, bold);
+  const ask = (row, text) => { put(row, PANE + 1, '›', C.accent, true); say(row, text, C.text); };
+  const passed = (row, text) => { put(row, PANE + 3, '✓', S.done); put(row, PANE + 5, text, C.head); };
+  const cursor = (row, typed) => {
+    put(row, PANE + 1, '›', C.accent, true);
+    const at = say(row, typed, C.text);
+    if (Math.floor(step / 3) % 2 === 0) put(row, at, '█', C.o0);
+  };
+  if (s.focus === 'billing') {
+    ask(2, 'Fix the rounding bug in invoice totals');
+    say(4, 'Totals now round half-even to the cent in');
+    say(5, 'ledger.Round, with a table test for the halves.');
+    passed(7, 'go test ./...   42 passed');
+    cursor(9, '');
+  } else if (s.focus === 'api') {
+    ask(2, 'Cache search results for 30 seconds');
+    say(4, 'Added an LRU in search/cache.go, keyed by the');
+    say(5, 'normalised query; a hit skips the index.');
+    say(7, 'Before I push: which branch should I rebase?', C.text, true);
+    say(8, '  1. main');
+    say(9, '  2. release-1.4');
+    if (f < T.answer) {
+      cursor(11, f >= T.type ? '1' : '');
+    } else {
+      ask(11, '1');
+      say(13, SPIN[step % SPIN.length] + ' Rebasing onto main', S.other, true);
+    }
+  } else {
+    ask(2, 'Add rate limits to the API');
+    say(4, 'Every API key gets a token bucket of 100');
+    say(5, 'requests a minute; past it the server answers');
+    say(6, '429 with Retry-After.');
+    passed(8, '6 files changed, tests pass');
+    cursor(10, '');
+  }
+
+  // The key just pressed.
+  if (s.hint) {
+    col = put(ROWS - 2, PANE + 2, ' ctrl+b u ', C.text, true, C.chip);
+    put(ROWS - 2, col + 2, 'jump to the next agent waiting on you', C.o0);
+  }
+  return grid;
+}
+
+// Fills go on a layer of their own under the glyphs: an icon is wider than
+// its cell, and the next cell's fill would cut it.
+function paint(f) {
+  const esc = (ch) => (ch === '<' ? '&lt;' : ch === '&' ? '&amp;' : ch);
+  const span = (style, text) => '<span' + (style ? ' style="' + style + '"' : '') + '>' + text + '</span>';
+  document.getElementById('screen').innerHTML = frame(f).map((cells) => {
+    const fills = cells.map((x) => span(x.bg ? 'background:' + x.bg : '', ' ')).join('');
+    const glyphs = cells.map((x) => span((x.fg ? 'color:' + x.fg + ';' : '') + (x.bold ? 'font-weight:700' : ''), esc(x.c))).join('');
+    return '<div class="row"><div>' + fills + '</div><div>' + glyphs + '</div></div>';
+  }).join('');
+}
+
+const fixed = new URLSearchParams(location.search).get('f');
+// The icon font loads only once a glyph asks for it: ask before painting.
+document.fonts.load('15px "Herdr Icons"', LOGO.claude).then(() => {
+  if (fixed !== null) {
+    paint(Number(fixed));
+    return;
+  }
+  let f = 0;
+  paint(f);
+  setInterval(() => paint((f = (f + 1) % FRAMES)), STEP_MS);
+});
+</script>
+</body>
+</html>

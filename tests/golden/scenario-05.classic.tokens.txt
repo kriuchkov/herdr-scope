@@ -1,0 +1,13 @@
+# group_indent 0, an orphan worktree with its repository row, a stale group fading its header, row_label tab
+Agents
+ lib{group_parent}
+   * feature/x{group}
+   §{logo_fresh} · work{title_idle_fresh}
+   {gap}
+ dormant{group_stale}
+   Λ{logo_stale} · parked{title_idle_stale}
+   {gap}
+
+Spaces
+ §{space_idle} · feature/x{space_label}
+ Λ{space_idle} · dormant{space_label}

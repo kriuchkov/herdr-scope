@@ -1,0 +1,232 @@
+{
+  "name": "scenario-03",
+  "description": "Herdr's own order: a worktree opened later is drawn detached, not under a stranger",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"text\"\nidle_grace_seconds = 0\n",
+  "mode": "off",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "app",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/src/app/.git",
+        "repo_name": "app",
+        "repo_root": "/home/user/src/app",
+        "checkout_path": "/home/user/src/app",
+        "is_linked_worktree": false
+      }
+    },
+    {
+      "workspace_id": "w2",
+      "number": 2,
+      "label": "feature",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/src/app/.git",
+        "repo_name": "app",
+        "repo_root": "/home/user/src/app",
+        "checkout_path": "/home/user/wt/feature",
+        "is_linked_worktree": true
+      }
+    },
+    {
+      "workspace_id": "w3",
+      "number": 3,
+      "label": "other",
+      "focused": false
+    },
+    {
+      "workspace_id": "w4",
+      "number": 4,
+      "label": "hotfix",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/src/app/.git",
+        "repo_name": "app",
+        "repo_root": "/home/user/src/app",
+        "checkout_path": "/home/user/wt/hotfix",
+        "is_linked_worktree": true
+      }
+    },
+    {
+      "workspace_id": "w5",
+      "number": 5,
+      "label": "scratch",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w2:t1",
+      "workspace_id": "w2",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w3:t1",
+      "workspace_id": "w3",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w4:t1",
+      "workspace_id": "w4",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w5:t1",
+      "workspace_id": "w5",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "activity": {
+    "w1:p1": "-1m",
+    "w2:p1": "-2m",
+    "w3:p1": "-3m",
+    "w4:p1": "-4m",
+    "w5:p1": "-5m"
+  },
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t1",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t2",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w3:p1",
+          "terminal_id": "term_w3_p1",
+          "workspace_id": "w3",
+          "tab_id": "w3:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t3",
+          "cwd": "/home/user/src/w3",
+          "revision": 1
+        },
+        {
+          "pane_id": "w4:p1",
+          "terminal_id": "term_w4_p1",
+          "workspace_id": "w4",
+          "tab_id": "w4:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t4",
+          "cwd": "/home/user/src/w4",
+          "revision": 1
+        },
+        {
+          "pane_id": "w5:p1",
+          "terminal_id": "term_w5_p1",
+          "workspace_id": "w5",
+          "tab_id": "w5:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t5",
+          "cwd": "/home/user/src/w5",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "1s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t1",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t2",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w3:p1",
+          "terminal_id": "term_w3_p1",
+          "workspace_id": "w3",
+          "tab_id": "w3:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t3",
+          "cwd": "/home/user/src/w3",
+          "revision": 1
+        },
+        {
+          "pane_id": "w4:p1",
+          "terminal_id": "term_w4_p1",
+          "workspace_id": "w4",
+          "tab_id": "w4:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t4",
+          "cwd": "/home/user/src/w4",
+          "revision": 1
+        },
+        {
+          "pane_id": "w5:p1",
+          "terminal_id": "term_w5_p1",
+          "workspace_id": "w5",
+          "tab_id": "w5:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "t5",
+          "cwd": "/home/user/src/w5",
+          "revision": 1
+        }
+      ]
+    }
+  ],
+  "host_grouped": true
+}

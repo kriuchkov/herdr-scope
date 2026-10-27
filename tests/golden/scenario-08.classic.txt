@@ -1,0 +1,10 @@
+# a pane moves to another workspace (new pane id, same terminal) and keeps its tick; a closed pane loses its tokens; display_agent names a known vendor
+Agents
+ b
+   § · ✓ moving
+   Ƶ · glm task
+
+
+Spaces
+ ◦ · a
+ ✓ · b

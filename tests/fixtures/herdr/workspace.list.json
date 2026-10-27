@@ -1,0 +1,52 @@
+{
+  "id": "probe",
+  "result": {
+    "type": "workspace_list",
+    "workspaces": [
+      {
+        "active_tab_id": "w1:t1",
+        "agent_status": "working",
+        "focused": false,
+        "label": "app",
+        "number": 1,
+        "pane_count": 2,
+        "tab_count": 1,
+        "workspace_id": "w1",
+        "worktree": {
+          "checkout_path": "/home/user/src/app",
+          "is_linked_worktree": false,
+          "repo_key": "/home/user/src/app/.git",
+          "repo_name": "app",
+          "repo_root": "/home/user/src/app"
+        }
+      },
+      {
+        "active_tab_id": "w2:t1",
+        "agent_status": "working",
+        "focused": false,
+        "label": "app-feature",
+        "number": 2,
+        "pane_count": 1,
+        "tab_count": 1,
+        "workspace_id": "w2",
+        "worktree": {
+          "checkout_path": "/home/user/src/app-feature",
+          "is_linked_worktree": true,
+          "repo_key": "/home/user/src/app/.git",
+          "repo_name": "app",
+          "repo_root": "/home/user/src/app"
+        }
+      },
+      {
+        "active_tab_id": "w3:t1",
+        "agent_status": "blocked",
+        "focused": true,
+        "label": "billing",
+        "number": 3,
+        "pane_count": 2,
+        "tab_count": 2,
+        "workspace_id": "w3"
+      }
+    ]
+  }
+}
