@@ -65,8 +65,9 @@ jobs:
       - name: Build the release binaries
         run: make dist
       # Every path of the install build step: a release tree's prebuilt binary,
-      # a source tree with no binaries, and one with no Go either, which
-      # downloads the release of its version once that release exists.
+      # a source tree with no binaries, and one whose Go fails (the runner has
+      # a system Go to hide), which downloads the release of its version once
+      # that release exists.
       - name: Check the install step
         run: |
           shellcheck scripts/build.sh
@@ -81,11 +82,11 @@ jobs:
           bin/herdr-scope version
           rm -rf bin
           version=$(sed -n 's/^version = "\(.*\)"$/\1/p' herdr-plugin.toml | head -n 1)
-          if env PATH=/usr/bin:/bin sh -c 'command -v go'; then
-            echo "::error::go is on the bare PATH, so the download path goes untested"; exit 1
-          fi
+          mkdir -p "$RUNNER_TEMP/broken-go"
+          printf '#!/bin/sh\nexit 1\n' > "$RUNNER_TEMP/broken-go/go"
+          chmod 755 "$RUNNER_TEMP/broken-go/go"
           if curl -fsIL -o /dev/null "https://github.com/$GITHUB_REPOSITORY/releases/download/v$version/SHA256SUMS"; then
-            env PATH=/usr/bin:/bin sh scripts/build.sh | tee build/install.log
+            env PATH="$RUNNER_TEMP/broken-go:$PATH" sh scripts/build.sh | tee build/install.log
             grep -q "installed the v$version release binary" build/install.log
             bin/herdr-scope version
           else

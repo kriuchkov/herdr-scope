@@ -32,16 +32,21 @@ place() {
 	cp "$1" "$tmp" && chmod 755 "$tmp" && mv -f "$tmp" bin/herdr-scope
 }
 
-# fetch downloads one release asset over HTTPS.
+# fetch downloads one release asset over HTTPS, three tries: curl's own
+# --retry passes over a reset connection.
 fetch() {
-	if command -v curl >/dev/null 2>&1; then
-		curl -fsSL --proto '=https' --tlsv1.2 --retry 2 -o "$2" "$1"
-	elif command -v wget >/dev/null 2>&1; then
-		wget -q -O "$2" "$1"
-	else
-		echo "herdr-scope: neither curl nor wget is on PATH" >&2
-		return 1
-	fi
+	for try in 1 2 3; do
+		if command -v curl >/dev/null 2>&1; then
+			curl -fsSL --proto '=https' --tlsv1.2 -o "$2" "$1" && return 0
+		elif command -v wget >/dev/null 2>&1; then
+			wget -q -O "$2" "$1" && return 0
+		else
+			echo "herdr-scope: neither curl nor wget is on PATH" >&2
+			return 1
+		fi
+		sleep "$try"
+	done
+	return 1
 }
 
 sha256() {
