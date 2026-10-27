@@ -1,0 +1,11 @@
+# split_corner on, row_label both: panes of one tab hang off the first
+Agents
+ proj{group}
+   §{logo_fresh} · review lead{title_idle_fresh}
+   ├─{split_mark} · Λ{logo_fresh} · review right{title_idle_fresh}
+   └─{split_mark} · ✦{logo_fresh} · review bottom{title_idle_fresh}
+   §{logo_idle} · 2 alone{title_idle}
+   {gap}
+
+Spaces
+ §{space_idle} · proj{space_label}

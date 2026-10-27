@@ -1,0 +1,156 @@
+id = "kriuchkov.herdr-scope"
+name = "Herdr Scope"
+version = "1.1.0"
+min_herdr_version = "0.9.0"
+description = "Who's working, who's waiting on you, who's done — grouped by project, each agent in its vendor's mark and colour. Worktrees nest under their repo, rows order by activity, idle sessions fade."
+platforms = ["linux", "macos", "windows"]
+
+# Runtime: one Go binary, bin/herdr-scope. The first build step
+# (scripts/build.sh, or scripts/build.cmd on Windows) puts it there, one of
+# three ways:
+#
+#   - Release install, no Go needed: `herdr plugin install
+#     kriuchkov/herdr-scope --ref release` (or `--ref vX.Y.Z-bin` to pin a
+#     version) checks out the tree the release workflow publishes: the tagged
+#     source plus prebuilt bin/herdr-scope-<os>-<arch>[.exe] for macOS, Linux
+#     and Windows on amd64 and arm64. The step copies this machine's binary.
+#   - Source install (the default branch, as the plugin catalog installs it,
+#     or any source tag) with Go 1.26+ on PATH: the step runs `go build`,
+#     which fetches the modules.
+#   - Source install without Go, or when that build fails: the step downloads
+#     the archive of this manifest's version from the GitHub release and
+#     checks it against the release's SHA256SUMS.
+#
+# `herdr plugin link` runs no build step: build a linked checkout yourself
+# with `make build`.
+#
+# Paths: configuration lives in $HERDR_PLUGIN_CONFIG_DIR/config.toml, state
+# (agent memory, view mode, backups, logs, the control socket) in
+# $HERDR_PLUGIN_STATE_DIR. Herdr creates both. Nothing is written into this
+# directory at runtime.
+#
+# Commands are argv arrays run from this directory; Herdr resolves a relative
+# program containing a "/" against it.
+
+[[build]]
+command = ["sh", "scripts/build.sh"]
+platforms = ["linux", "macos"]
+
+# cmd rather than PowerShell: no execution policy to trip over, and /d skips
+# the user's AutoRun hooks.
+[[build]]
+command = ["cmd", "/d", "/c", "scripts\\build.cmd"]
+platforms = ["windows"]
+
+# First-run setup: the managed blocks and the icon font. It starts nothing:
+# the build runs inside Herdr's temporary checkout, which is renamed into
+# place afterwards. The startup hooks below start the daemon once the plugin
+# is where it stays; a linked checkout gets the same setup from its first
+# state-start.
+[[build]]
+command = ["bin/herdr-scope", "setup"]
+
+[[startup]]
+command = ["bin/herdr-scope", "state-start"]
+
+# The sort override lives in the server's memory and dies with it.
+[[startup]]
+command = ["bin/herdr-scope", "view", "--reapply"]
+
+# A watchdog, not the wake mechanism (the daemon wakes on its own event
+# subscription): a daemon that crashed comes back the next time an agent is
+# detected.
+[[events]]
+on = "pane.agent_detected"
+command = ["bin/herdr-scope", "state-start"]
+
+[[actions]]
+id = "state-start"
+title = "Scope: start"
+description = "Make sure the Scope daemon runs (it sets itself up on first start)."
+command = ["bin/herdr-scope", "state-start"]
+
+[[actions]]
+id = "state-stop"
+title = "Scope: stop"
+description = "Stop the daemon and clear its marks. Titles and sort keys stay so the list stays readable; unconfigure clears everything."
+command = ["bin/herdr-scope", "state-stop"]
+
+# Herdr disables the panel's own grouped/priority toggle while an agent-view
+# override is active, so these actions are both the way into Scope's orders
+# and the way back out. Bind them with plugin_action key commands.
+[[actions]]
+id = "view-flip"
+title = "Agents: active <-> recent"
+description = "Flip between grouped-by-activity and flat-by-activity."
+command = ["bin/herdr-scope", "view", "--flip"]
+
+[[actions]]
+id = "view-toggle"
+title = "Agents: cycle order (active / recent / off)"
+description = "Cycle the Agents panel: grouped by activity, flat by activity, or the panel's own order."
+command = ["bin/herdr-scope", "view", "--cycle"]
+
+[[actions]]
+id = "view-native"
+title = "Agents: Herdr's panel <-> Scope's"
+description = "Toggle the whole Agents panel — order and row colours — between Herdr's own and Scope's."
+command = ["bin/herdr-scope", "view", "--native"]
+
+[[actions]]
+id = "view-here"
+title = "Agents: only this workspace <-> all"
+description = "Narrow the Agents panel to the focused workspace and the folders and worktrees under it; again for all of them."
+command = ["bin/herdr-scope", "view", "--here"]
+
+[[actions]]
+id = "fold"
+title = "Agents: fold <-> unfold this folder"
+description = "Fold the focused workspace's folder (its nested folders and worktrees) in the Agents panel to one line, or unfold it. Agents waiting on you and the focused workspace stay."
+command = ["bin/herdr-scope", "fold"]
+
+[[actions]]
+id = "jump"
+title = "Agents: next one waiting on you"
+description = "Focus the next agent that waits on you — a question first, then a finished turn you have not seen — round the list."
+command = ["bin/herdr-scope", "jump"]
+
+[[actions]]
+id = "settings"
+title = "Scope: settings"
+description = "Open the settings popup."
+command = ["bin/herdr-scope", "settings", "--open"]
+
+[[panes]]
+id = "settings"
+title = "herdr-scope settings"
+placement = "popup"
+command = ["bin/herdr-scope", "settings"]
+width = 84
+height = "90%"
+
+# Install or remove the managed blocks in Herdr's config.toml without knowing
+# where the plugin lives — a GitHub install never shows its directory.
+[[actions]]
+id = "configure"
+title = "Scope: install the sidebar, tab-bar and theme blocks"
+description = "Write (or repair) the managed blocks in Herdr's config.toml and reload."
+command = ["bin/herdr-scope", "configure", "--apply", "--reload"]
+
+[[actions]]
+id = "unconfigure"
+title = "Scope: remove the managed blocks"
+description = "Stop the daemon, clear every token it wrote, remove the managed blocks and reload. Do this before uninstalling."
+command = ["bin/herdr-scope", "unconfigure"]
+
+[[actions]]
+id = "install-font"
+title = "Font: install for this user and map codepoints in the terminal"
+description = "Copy the icon font into your user font directory (no admin rights) and write the codepoint map into Ghostty/kitty configs that exist."
+command = ["bin/herdr-scope", "font", "install"]
+
+[[actions]]
+id = "uninstall-font"
+title = "Font: remove"
+description = "Remove the installed icon font and the terminal codepoint maps Scope wrote."
+command = ["bin/herdr-scope", "font", "uninstall"]

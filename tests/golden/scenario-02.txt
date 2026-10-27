@@ -1,0 +1,9 @@
+# recent order: one flat list by last activity, no headers, unstamped rows last
+Agents
+ ✦ ⣽ busy
+ Λ fresh
+ § old
+
+Spaces
+ Λ api
+ ✦ web

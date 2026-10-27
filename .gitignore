@@ -1,0 +1,8 @@
+/bin/
+/herdr-scope
+*.test
+coverage.out
+coverage.html
+.DS_Store
+/build/
+/vendor/

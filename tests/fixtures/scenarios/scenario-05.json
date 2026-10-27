@@ -1,0 +1,106 @@
+{
+  "name": "scenario-05",
+  "description": "group_indent 0, an orphan worktree with its repository row, a stale group fading its header, row_label tab",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"text\"\nidle_grace_seconds = 0\ngroup_indent = 0\nworktree_mark = \"*\"\nrow_label = \"tab\"\n",
+  "mode": "active",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "feature/x",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/src/lib/.git",
+        "repo_name": "lib",
+        "repo_root": "/home/user/src/lib",
+        "checkout_path": "/home/user/wt/x",
+        "is_linked_worktree": true
+      }
+    },
+    {
+      "workspace_id": "w2",
+      "number": 2,
+      "label": "dormant",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "work"
+    },
+    {
+      "tab_id": "w2:t1",
+      "workspace_id": "w2",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "activity": {
+    "w1:p1": "-1m",
+    "w2:p1": "-300m"
+  },
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "building",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "parked",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "1s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "building",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w2:p1",
+          "terminal_id": "term_w2_p1",
+          "workspace_id": "w2",
+          "tab_id": "w2:t1",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "parked",
+          "cwd": "/home/user/src/w2",
+          "revision": 1
+        }
+      ]
+    }
+  ]
+}

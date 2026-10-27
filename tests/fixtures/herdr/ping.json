@@ -1,0 +1,16 @@
+{
+  "id": "probe",
+  "result": {
+    "capabilities": {
+      "detached_server_daemon": false,
+      "endpoint_protocol_generation": 1,
+      "health_check": true,
+      "live_handoff": true,
+      "ssh_agent_registration": true,
+      "surface_interest": true
+    },
+    "protocol": 22,
+    "type": "pong",
+    "version": "0.9.5"
+  }
+}
