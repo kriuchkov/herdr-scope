@@ -89,7 +89,9 @@ if [ -f "$prebuilt" ]; then
 fi
 
 if command -v go >/dev/null 2>&1; then
-	echo "herdr-scope: no prebuilt binary for $os-$arch, building from source with $(go env GOVERSION)"
+	# A broken toolchain prints no version; its go build says what is wrong.
+	gover=$(go env GOVERSION 2>/dev/null) || gover=
+	echo "herdr-scope: no prebuilt binary for $os-$arch, building from source with ${gover:-Go}"
 	if go build -trimpath -o bin/herdr-scope ./cmd/herdr-scope; then
 		exit 0
 	fi
