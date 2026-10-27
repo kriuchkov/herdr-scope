@@ -7,17 +7,19 @@ platforms = ["linux", "macos", "windows"]
 
 # Runtime: one Go binary, bin/herdr-scope. The first build step
 # (scripts/build.sh, or scripts/build.cmd on Windows) puts it there, one of
-# two ways:
+# three ways:
 #
 #   - Release install, no Go needed: `herdr plugin install
 #     kriuchkov/herdr-scope --ref release` (or `--ref vX.Y.Z-bin` to pin a
 #     version) checks out the tree the release workflow publishes: the tagged
 #     source plus prebuilt bin/herdr-scope-<os>-<arch>[.exe] for macOS, Linux
 #     and Windows on amd64 and arm64. The step copies this machine's binary.
-#   - Source install (the default branch, or any source tag): no prebuilt
-#     binaries, so the step runs `go build` and needs a Go toolchain (1.26+)
-#     on the machine that installs the plugin, and the network for Go to
-#     fetch the modules.
+#   - Source install (the default branch, as the plugin catalog installs it,
+#     or any source tag) with Go 1.26+ on PATH: the step runs `go build`,
+#     which fetches the modules.
+#   - Source install without Go, or when that build fails: the step downloads
+#     the archive of this manifest's version from the GitHub release and
+#     checks it against the release's SHA256SUMS.
 #
 # `herdr plugin link` runs no build step: build a linked checkout yourself
 # with `make build`.

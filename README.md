@@ -51,9 +51,10 @@ herdr plugin install kriuchkov/herdr-scope --ref release
 ```
 
 The `release` branch carries prebuilt binaries for macOS, Linux and Windows. Without `--ref`,
-Herdr builds from source, which needs Go 1.26+. Setup adds Scope's blocks to Herdr's
-`config.toml` between `HERDR-SCOPE` markers and installs the icon font for your user. It
-requires Herdr 0.9+ (protocol 22).
+as the [plugin catalog](https://herdr.dev/plugins/) installs it, Herdr builds from source
+with Go 1.26+. Without Go, it downloads the release binary and checks its checksum. Setup
+adds Scope's blocks to Herdr's `config.toml` between `HERDR-SCOPE` markers and installs the
+icon font for your user. It requires Herdr 0.9+ (protocol 22).
 
 > [!IMPORTANT]
 > If the sidebar has not changed, start the daemon:

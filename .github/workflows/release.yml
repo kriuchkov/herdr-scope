@@ -173,7 +173,7 @@ jobs:
 
               herdr plugin install $GITHUB_REPOSITORY --ref $TAG-bin
 
-          Use --ref release instead to install the latest release. Without --ref, Herdr checks out the default branch and builds it from source, which needs Go 1.26 or newer.
+          Use --ref release instead to install the latest release. Without --ref, Herdr checks out the default branch: the install step builds it from source when Go 1.26 or newer is on PATH, and otherwise downloads this release's binary and checks it against SHA256SUMS.
 
           The archives hold the same binaries with LICENSE and THIRD_PARTY_NOTICES.md; SHA256SUMS lists their checksums.
           EOF

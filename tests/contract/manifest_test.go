@@ -99,6 +99,8 @@ func TestManifestCommandsExist(t *testing.T) {
 		raw, err := os.ReadFile(filepath.Join(root, script))
 		require.NoError(t, err)
 		assert.Contains(t, string(raw), "go build -trimpath", "%s: without a prebuilt binary the step builds from source", script)
+		assert.Contains(t, string(raw), "releases/download/v", "%s: without Go the step downloads the release binary", script)
+		assert.Contains(t, string(raw), "SHA256SUMS", "%s: and checks it against the release's checksums", script)
 	}
 	_, err := os.Stat(filepath.Join(root, "dist", "HerdrAgentIconsMax-Regular.ttf"))
 	require.NoError(t, err, "the bundled font ships with the plugin")

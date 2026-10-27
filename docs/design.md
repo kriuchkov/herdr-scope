@@ -82,6 +82,10 @@ session.
   build kept painting (seen three times).
 - **The control socket moves to `$XDG_RUNTIME_DIR` or the temp dir past 104 bytes,** the Unix
   socket path limit.
+- **Without Go, the install step downloads the release binary of the manifest's version.** The
+  plugin catalog installs with no `--ref`, so from the default branch, and Herdr has no field
+  to point it at `release`. The binary is checked against the release's `SHA256SUMS`. CI keeps
+  a released version's manifest as released, so the manifest and binary always match.
 
 ## Not verified
 

@@ -64,8 +64,9 @@ jobs:
           go-version-file: go.mod
       - name: Build the release binaries
         run: make dist
-      # Both paths of the install build step: a release tree's prebuilt binary,
-      # then a source tree with no binaries.
+      # Every path of the install build step: a release tree's prebuilt binary,
+      # a source tree with no binaries, and one with no Go either, which
+      # downloads the release of its version once that release exists.
       - name: Check the install step
         run: |
           shellcheck scripts/build.sh
@@ -78,3 +79,29 @@ jobs:
           sh scripts/build.sh | tee build/install.log
           grep -q 'building from source' build/install.log
           bin/herdr-scope version
+          rm -rf bin
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' herdr-plugin.toml | head -n 1)
+          if env PATH=/usr/bin:/bin sh -c 'command -v go'; then
+            echo "::error::go is on the bare PATH, so the download path goes untested"; exit 1
+          fi
+          if curl -fsIL -o /dev/null "https://github.com/$GITHUB_REPOSITORY/releases/download/v$version/SHA256SUMS"; then
+            env PATH=/usr/bin:/bin sh scripts/build.sh | tee build/install.log
+            grep -q "installed the v$version release binary" build/install.log
+            bin/herdr-scope version
+          else
+            echo "v$version is not released yet: the download path is checked once it is"
+          fi
+      # A Go-less install pairs this checkout's manifest with the binary of the
+      # release of its version, so a released version's manifest stays as
+      # released: change it, bump the version. Comments may change.
+      - name: Check the manifest against its release
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' herdr-plugin.toml | head -n 1)
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+            git fetch --quiet --depth=1 origin "refs/tags/v$version:refs/tags/v$version"
+            strip() { grep -v -E '^[[:space:]]*(#|$)'; }
+            if ! diff <(git show "v$version:herdr-plugin.toml" | strip) <(strip < herdr-plugin.toml); then
+              echo "::error file=herdr-plugin.toml::the manifest changed since v$version, whose binary a Go-less install downloads: bump the version"
+              exit 1
+            fi
+          fi
