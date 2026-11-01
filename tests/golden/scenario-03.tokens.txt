@@ -1,0 +1,19 @@
+# Herdr's own order: a worktree opened later is drawn detached, not under a stranger
+Agents
+ app{group}
+   § t1{title_idle_fresh}
+   └─  feature{group}
+     § t2{title_idle_fresh}
+ other{group}
+   § t3{title_idle_fresh}
+  hotfix{group}
+   § t4{title_idle_fresh}
+ scratch{group}
+   § t5{title_idle_fresh}
+
+Spaces
+ § app{space_idle}
+ § feature{space_idle}
+ § other{space_idle}
+ § hotfix{space_idle}
+ § scratch{space_idle}

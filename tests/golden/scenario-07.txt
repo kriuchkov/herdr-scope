@@ -1,0 +1,8 @@
+# icon font glyphs; a question survives a detector idle; focusing a pane acknowledges its tick
+Agents
+ ui
+     y
+    x
+
+Spaces
+  ui
