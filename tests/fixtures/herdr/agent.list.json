@@ -1,0 +1,74 @@
+{
+  "id": "probe",
+  "result": {
+    "agents": [
+      {
+        "agent": "claude",
+        "agent_status": "working",
+        "cwd": "/home/user/src/app",
+        "focused": false,
+        "foreground_cwd": "/home/user/src/app",
+        "pane_id": "w1:p1",
+        "revision": 0,
+        "state_change_seq": 1,
+        "tab_id": "w1:t1",
+        "terminal_id": "term_65e7fabc6ab371",
+        "workspace_id": "w1"
+      },
+      {
+        "agent": "codex",
+        "agent_status": "idle",
+        "cwd": "/home/user/src/app",
+        "focused": false,
+        "foreground_cwd": "/home/user/src/app",
+        "pane_id": "w1:p2",
+        "revision": 0,
+        "state_change_seq": 2,
+        "tab_id": "w1:t1",
+        "terminal_id": "term_65e7faeebf82b4",
+        "workspace_id": "w1"
+      },
+      {
+        "agent": "claude",
+        "agent_status": "working",
+        "cwd": "/home/user/src/app-feature",
+        "focused": false,
+        "foreground_cwd": "/home/user/src/app-feature",
+        "pane_id": "w2:p1",
+        "revision": 0,
+        "state_change_seq": 3,
+        "tab_id": "w2:t1",
+        "terminal_id": "term_65e7fabc6e6752",
+        "workspace_id": "w2"
+      },
+      {
+        "agent": "gemini",
+        "agent_status": "blocked",
+        "cwd": "/home/user/src/billing",
+        "focused": true,
+        "foreground_cwd": "/home/user/src/billing",
+        "pane_id": "w3:p1",
+        "revision": 0,
+        "state_change_seq": 4,
+        "tab_id": "w3:t1",
+        "terminal_id": "term_65e7fabc719183",
+        "title": "billing \u00b7 fix rounding",
+        "workspace_id": "w3"
+      },
+      {
+        "agent": "droid",
+        "agent_status": "idle",
+        "cwd": "/home/user/src/billing",
+        "focused": false,
+        "foreground_cwd": "/home/user/src/billing",
+        "pane_id": "w3:p2",
+        "revision": 0,
+        "state_change_seq": 5,
+        "tab_id": "w3:t2",
+        "terminal_id": "term_65e7faeec3bcf5",
+        "workspace_id": "w3"
+      }
+    ],
+    "type": "agent_list"
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "name": "scenario-06",
+  "description": "done_hold 30 s expires; a hook-owned idle releases a held question; the idle grace absorbs a flap",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"text\"\ndone_hold = 30\n",
+  "mode": "active",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "svc",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w1:t2",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w1:t3",
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "activity": {},
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "a",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "opencode",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "b",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p3",
+          "terminal_id": "term_w1_p3",
+          "workspace_id": "w1",
+          "tab_id": "w1:t3",
+          "agent": "codex",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "c",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "1s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "a",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "opencode",
+          "agent_status": "blocked",
+          "focused": false,
+          "terminal_title_stripped": "b",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p3",
+          "terminal_id": "term_w1_p3",
+          "workspace_id": "w1",
+          "tab_id": "w1:t3",
+          "agent": "codex",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "c",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "10s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "a",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "opencode",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "b",
+          "cwd": "/home/user/src/w1",
+          "revision": 1,
+          "screen_detection_skipped": true
+        },
+        {
+          "pane_id": "w1:p3",
+          "terminal_id": "term_w1_p3",
+          "workspace_id": "w1",
+          "tab_id": "w1:t3",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "c",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "50s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "a",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "opencode",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "b",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p3",
+          "terminal_id": "term_w1_p3",
+          "workspace_id": "w1",
+          "tab_id": "w1:t3",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "c",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "51s",
+      "agents": [
+        {
+          "pane_id": "w1:p1",
+          "terminal_id": "term_w1_p1",
+          "workspace_id": "w1",
+          "tab_id": "w1:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "a",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p2",
+          "terminal_id": "term_w1_p2",
+          "workspace_id": "w1",
+          "tab_id": "w1:t2",
+          "agent": "opencode",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "b",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w1:p3",
+          "terminal_id": "term_w1_p3",
+          "workspace_id": "w1",
+          "tab_id": "w1:t3",
+          "agent": "codex",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "c",
+          "cwd": "/home/user/src/w1",
+          "revision": 1
+        }
+      ]
+    }
+  ]
+}

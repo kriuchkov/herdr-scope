@@ -1,0 +1,23 @@
+# Herdr's own order: a worktree opened later is drawn detached, not under a stranger
+Agents
+ app
+   § · t1
+   └─  feature
+     § · t2
+
+ other
+   § · t3
+
+  hotfix
+   § · t4
+
+ scratch
+   § · t5
+
+
+Spaces
+ § · app
+ § · feature
+ § · other
+ § · hotfix
+ § · scratch
