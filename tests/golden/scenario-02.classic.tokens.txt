@@ -1,0 +1,9 @@
+# recent order: one flat list by last activity, no headers, unstamped rows last
+Agents
+ ✦{logo_working} · ⣽ busy{title_working}
+ Λ{logo_fresh} · fresh{title_idle_fresh}
+ §{logo_idle} · old{title_idle}
+
+Spaces
+ Λ{space_idle} · api{space_label}
+ ✦{space_working_gemini} · web{space_label}

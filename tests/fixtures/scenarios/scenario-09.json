@@ -1,0 +1,196 @@
+{
+  "name": "scenario-09",
+  "description": "nest_folders: a folder with no agent of its own gathers the worktrees of its repositories under one synthesised row, a closed checkout's too",
+  "start": "2026-10-23T12:00:00Z",
+  "config": "variant = \"text\"\nidle_grace_seconds = 0\nworktree_mark = \"*\"\n",
+  "mode": "active",
+  "workspaces": [
+    {
+      "workspace_id": "w1",
+      "number": 1,
+      "label": "proj",
+      "focused": false
+    },
+    {
+      "workspace_id": "w2",
+      "number": 2,
+      "label": "api",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/proj/services/api/.git",
+        "repo_name": "api",
+        "repo_root": "/home/user/proj/services/api",
+        "checkout_path": "/home/user/proj/services/api",
+        "is_linked_worktree": false
+      }
+    },
+    {
+      "workspace_id": "w3",
+      "number": 3,
+      "label": "T-1 · api",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/proj/services/api/.git",
+        "repo_name": "api",
+        "repo_root": "/home/user/proj/services/api",
+        "checkout_path": "/home/user/wt/t1",
+        "is_linked_worktree": true
+      }
+    },
+    {
+      "workspace_id": "w4",
+      "number": 4,
+      "label": "T-2 · web",
+      "focused": false,
+      "worktree": {
+        "repo_key": "/home/user/proj/web/.git",
+        "repo_name": "web",
+        "repo_root": "/home/user/proj/web",
+        "checkout_path": "/home/user/wt/t2",
+        "is_linked_worktree": true
+      }
+    },
+    {
+      "workspace_id": "w5",
+      "number": 5,
+      "label": "other",
+      "focused": false
+    }
+  ],
+  "tabs": [
+    {
+      "tab_id": "w3:t1",
+      "workspace_id": "w3",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w4:t1",
+      "workspace_id": "w4",
+      "number": 1,
+      "label": "1"
+    },
+    {
+      "tab_id": "w5:t1",
+      "workspace_id": "w5",
+      "number": 1,
+      "label": "1"
+    }
+  ],
+  "panes": [
+    {
+      "pane_id": "w1:p1",
+      "workspace_id": "w1",
+      "cwd": "/home/user/proj"
+    },
+    {
+      "pane_id": "w2:p1",
+      "workspace_id": "w2",
+      "cwd": "/home/user/proj/services/api"
+    },
+    {
+      "pane_id": "w3:p1",
+      "workspace_id": "w3",
+      "cwd": "/home/user/wt/t1"
+    },
+    {
+      "pane_id": "w4:p1",
+      "workspace_id": "w4",
+      "cwd": "/home/user/wt/t2"
+    },
+    {
+      "pane_id": "w5:p1",
+      "workspace_id": "w5",
+      "cwd": "/home/user/src/other"
+    }
+  ],
+  "activity": {
+    "w3:p1": "-1m",
+    "w4:p1": "-3m",
+    "w5:p1": "-10m"
+  },
+  "steps": [
+    {
+      "at": "0s",
+      "agents": [
+        {
+          "pane_id": "w3:p1",
+          "terminal_id": "term_w3_p1",
+          "workspace_id": "w3",
+          "tab_id": "w3:t1",
+          "agent": "claude",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "fix the api",
+          "cwd": "/home/user/wt/t1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w4:p1",
+          "terminal_id": "term_w4_p1",
+          "workspace_id": "w4",
+          "tab_id": "w4:t1",
+          "agent": "codex",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "port the web",
+          "cwd": "/home/user/wt/t2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w5:p1",
+          "terminal_id": "term_w5_p1",
+          "workspace_id": "w5",
+          "tab_id": "w5:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "parked",
+          "cwd": "/home/user/src/other",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "at": "1s",
+      "agents": [
+        {
+          "pane_id": "w3:p1",
+          "terminal_id": "term_w3_p1",
+          "workspace_id": "w3",
+          "tab_id": "w3:t1",
+          "agent": "claude",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "fix the api",
+          "cwd": "/home/user/wt/t1",
+          "revision": 1
+        },
+        {
+          "pane_id": "w4:p1",
+          "terminal_id": "term_w4_p1",
+          "workspace_id": "w4",
+          "tab_id": "w4:t1",
+          "agent": "codex",
+          "agent_status": "working",
+          "focused": false,
+          "terminal_title_stripped": "port the web",
+          "cwd": "/home/user/wt/t2",
+          "revision": 1
+        },
+        {
+          "pane_id": "w5:p1",
+          "terminal_id": "term_w5_p1",
+          "workspace_id": "w5",
+          "tab_id": "w5:t1",
+          "agent": "claude",
+          "agent_status": "idle",
+          "focused": false,
+          "terminal_title_stripped": "parked",
+          "cwd": "/home/user/src/other",
+          "revision": 1
+        }
+      ]
+    }
+  ]
+}

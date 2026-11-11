@@ -1,0 +1,16 @@
+# nest_folders: a folder with no agent of its own gathers the worktrees of its repositories under one synthesised row, a closed checkout's too
+Agents
+ proj
+   ├─ * T-2 · web
+     Λ ⣽ port the web
+   └─ * T-1 · api
+     § ⣽ fix the api
+ other
+   § parked
+
+Spaces
+ ◦ proj
+   ├─ ◦ api
+ § T-1 · api
+   └─ Λ T-2 · web
+ § other
