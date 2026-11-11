@@ -50,6 +50,50 @@ The keys of the table above may also sit under `[display]`, which also takes `so
 out of range takes its nearest limit; an unknown word or a bad colour takes the default.
 `herdr-scope config validate` and the log name each one.
 
+## Keys
+
+Scope binds no keys itself. Paste this into Herdr's `config.toml` (not the file above) and
+reload; `bin/herdr-scope configure --keys` prints the same:
+
+```toml
+# herdr-scope — paste into Herdr's config.toml and adjust the keys to taste.
+# All go through the prefix (ctrl+b by default) so they cannot collide
+# with anything running inside a pane.
+
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "kriuchkov.herdr-scope.view-flip"
+description = "Agents: active <-> recent"
+
+[[keys.command]]
+key = "prefix+u"
+type = "plugin_action"
+command = "kriuchkov.herdr-scope.jump"
+description = "Agents: next one waiting on you"
+
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "kriuchkov.herdr-scope.view-here"
+description = "Agents: only this workspace <-> all"
+
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "kriuchkov.herdr-scope.fold"
+description = "Agents: fold <-> unfold this folder"
+
+[[keys.command]]
+key = "prefix+comma"
+type = "plugin_action"
+command = "kriuchkov.herdr-scope.settings"
+description = "herdr-scope settings"
+```
+
+Other actions (`view-toggle`, `view-native`, `state-start`, …) bind the same way; `herdr plugin
+action list` names them all.
+
 ## Idle tiers
 
 Idle is split by the time since the last turn. For panes older than the daemon, that time is

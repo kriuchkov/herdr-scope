@@ -75,8 +75,9 @@ herdr plugin uninstall kriuchkov.herdr-scope
 
 ## Keys
 
-Scope binds no keys itself. `bin/herdr-scope configure --keys` prints the snippet for
-`config.toml`, one `[[keys.command]]` per row:
+Scope binds no keys itself. Copy the [ready snippet](docs/configuration.md#keys) into Herdr's
+`config.toml`, one `[[keys.command]]` per row (`bin/herdr-scope configure --keys` prints the
+same):
 
 | Key | Action | Does |
 | --- | --- | --- |
@@ -84,14 +85,7 @@ Scope binds no keys itself. `bin/herdr-scope configure --keys` prints the snippe
 | `prefix+a` | `view-flip` | order: active ↔ recent |
 | `prefix+f` | `view-here` | only this workspace ↔ all |
 | `prefix+m` | `fold` | fold ↔ unfold this folder; agents waiting on you, or alone in it, stay visible |
-| `prefix+,` | `settings` | the settings popup |
-
-```toml
-[[keys.command]]
-key = "prefix+u"
-type = "plugin_action"
-command = "kriuchkov.herdr-scope.jump"
-```
+| `prefix+,` | `settings` | the settings popup (`prefix+comma` in `config.toml`) |
 
 ## Configuration
 
