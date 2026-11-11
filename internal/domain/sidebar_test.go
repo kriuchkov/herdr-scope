@@ -99,7 +99,7 @@ func TestActiveOrderPutsTheBusiestGroupFirst(t *testing.T) {
 		agent("w1", "t1", "p1", 90, DisplayIdle).
 		agent("w2", "t1", "p1", 1, DisplayIdleFresh).
 		agent("w2", "t2", "p2", 30, DisplayIdle)
-	v := s.build(SortActive, DefaultDisplayPolicy())
+	v := s.build(SortActive, spaced())
 	require.True(t, v.Grouped)
 	assert.Equal(t, []string{
 		"# dashboard", "0 w2:p1", "1 w2:p2", "",
@@ -126,7 +126,7 @@ func TestOffOrderKeepsHerdrOrderAndGroupsOnlyWhenHerdrDoes(t *testing.T) {
 		At:          at(0),
 		Mode:        SortOff,
 		HostGrouped: true,
-		Policy:      DefaultDisplayPolicy(),
+		Policy:      spaced(),
 		Workspaces:  s.workspaces,
 		Tabs:        s.tabs,
 		Agents:      s.agents,
@@ -139,9 +139,92 @@ func TestOffOrderKeepsHerdrOrderAndGroupsOnlyWhenHerdrDoes(t *testing.T) {
 func TestGapsFollowTheSetting(t *testing.T) {
 	s := (&scenario{}).ws("w1", "a", nil).ws("w2", "b", nil).
 		agent("w1", "t1", "p1", 1, DisplayIdle).agent("w2", "t1", "p1", 2, DisplayIdle)
-	p := DefaultDisplayPolicy()
+	p := spaced()
 	p.GroupGap = false
 	assert.Equal(t, []string{"# a", "0 w1:p1", "# b", "0 w2:p1"}, outline(s.build(SortActive, p)))
+}
+
+// spaced is the default policy with a blank row after every block: the tests
+// of structure predate pack_single and pin their gaps.
+func spaced() DisplayPolicy {
+	p := DefaultDisplayPolicy()
+	p.PackSingle = false
+	return p
+}
+
+func TestSingleBlocksPack(t *testing.T) {
+	s := (&scenario{}).ws("w1", "billing", nil).ws("w2", "dashboard", nil).ws("w3", "notes", nil).
+		agent("w2", "t1", "p1", 1, DisplayWorking).
+		agent("w2", "t2", "p2", 30, DisplayIdle).
+		agent("w1", "t1", "p1", 5, DisplayIdle).
+		agent("w3", "t1", "p1", 10, DisplayIdle)
+	assert.Equal(t, []string{
+		"# dashboard", "0 w2:p1", "1 w2:p2", "",
+		"# billing", "0 w1:p1",
+		"# notes", "0 w3:p1",
+	}, outline(s.build(SortActive, DefaultDisplayPolicy())), "one-agent workspaces follow each other; nothing trails the last")
+
+	s.agents[2].Display = DisplayWorking
+	s.agents[2].Activity.At = at(0)
+	assert.Equal(t, []string{
+		"# billing", "0 w1:p1", "",
+		"# dashboard", "0 w2:p1", "1 w2:p2", "",
+		"# notes", "0 w3:p1",
+	}, outline(s.build(SortActive, DefaultDisplayPolicy())), "a group of several agents keeps a blank row on both sides")
+
+	p := DefaultDisplayPolicy()
+	p.GroupGap = false
+	assert.Equal(t, []string{
+		"# billing", "0 w1:p1",
+		"# dashboard", "0 w2:p1", "1 w2:p2",
+		"# notes", "0 w3:p1",
+	}, outline(s.build(SortActive, p)))
+
+	assert.Equal(t, []string{
+		"# billing", "0 w1:p1", "",
+		"# dashboard", "0 w2:p1", "1 w2:p2", "",
+		"# notes", "0 w3:p1", "",
+	}, outline(s.build(SortActive, spaced())), "pack_single off: a blank row after every block")
+}
+
+func TestAFamilyIsNeverASingleBlock(t *testing.T) {
+	s := (&scenario{}).
+		ws("app", "app", repo("app", false, "/src/app")).
+		ws("other", "other", nil).
+		ws("feature", "feature/auth", repo("app", true, "/wt/feature")).
+		ws("hotfix", "hotfix", repo("app", true, "/wt/hotfix")).
+		agent("app", "t1", "p1", 300, DisplayIdleStale).
+		agent("other", "t1", "p1", 10, DisplayIdle).
+		agent("feature", "t1", "p1", 1, DisplayWorking).
+		agent("hotfix", "t1", "p1", 20, DisplayIdle)
+	assert.Equal(t, []string{
+		"# app (stale)", "0 app:p1",
+		"# ├ feature/auth", "1 feature:p1",
+		"# └ hotfix", "1 hotfix:p1", "",
+		"# other", "0 other:p1",
+	}, outline(s.build(SortActive, DefaultDisplayPolicy())), "one agent per member, still a block of several")
+
+	s = (&scenario{}).ws("feature", "feature/auth", repo("app", true, "/wt/feature")).ws("other", "other", nil).
+		agent("feature", "t1", "p1", 1, DisplayIdle).
+		agent("other", "t1", "p1", 10, DisplayIdle)
+	assert.Equal(t, []string{
+		"# @app └ feature/auth", "1 feature:p1", "",
+		"# other", "0 other:p1",
+	}, outline(s.build(SortActive, DefaultDisplayPolicy())), "a synthesised repository row makes it three lines")
+}
+
+func TestAFoldWithOneAgentPacks(t *testing.T) {
+	s := (&scenario{}).ws("w1", "notes", nil).ws("w2", "other", nil).
+		agent("w1", "t1", "p1", 1, DisplayWorking).
+		agent("w2", "t1", "p1", 5, DisplayIdle)
+	v := BuildSidebar(SidebarInput{
+		At: at(0), Mode: SortActive, Policy: DefaultDisplayPolicy(), Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
+		Folded: map[WorkspaceID]bool{"w1": true}, Focused: "w2",
+	})
+	assert.Equal(t, []string{
+		"▸ notes +0", "0 w1:p1",
+		"# other", "0 w2:p1",
+	}, outline(v), "the line stands for the header: still one agent")
 }
 
 func TestWorktreeFamilyStaysTogetherParentFirst(t *testing.T) {
@@ -154,7 +237,7 @@ func TestWorktreeFamilyStaysTogetherParentFirst(t *testing.T) {
 		agent("other", "t1", "p1", 10, DisplayIdle).
 		agent("feature", "t1", "p1", 1, DisplayWorking).
 		agent("hotfix", "t1", "p1", 20, DisplayIdle)
-	v := s.build(SortActive, DefaultDisplayPolicy())
+	v := s.build(SortActive, spaced())
 	// The busy worktree pulls its dormant parent up with it; the parent is
 	// drawn first and the family has no gap inside.
 	assert.Equal(t, []string{
@@ -170,14 +253,14 @@ func TestOrphanWorktreeGetsARepositoryRow(t *testing.T) {
 		ws("app", "app", repo("app", false, "/src/app")).
 		ws("feature", "feature/auth", repo("app", true, "/wt/feature")).
 		agent("feature", "t1", "p1", 1, DisplayIdle)
-	v := s.build(SortActive, DefaultDisplayPolicy())
+	v := s.build(SortActive, spaced())
 	assert.Equal(t, []string{"# @app └ feature/auth", "1 feature:p1", ""}, outline(v))
 
 	s.ws("hotfix", "hotfix", repo("app", true, "/wt/hotfix")).agent("hotfix", "t1", "p1", 2, DisplayIdle)
 	assert.Equal(t, []string{
 		"# @app ├ feature/auth", "1 feature:p1",
 		"# └ hotfix", "1 hotfix:p1", "",
-	}, outline(s.build(SortActive, DefaultDisplayPolicy())), "siblings share the row")
+	}, outline(s.build(SortActive, spaced())), "siblings share the row")
 }
 
 func TestStrayWorktreeIsDetachedInHerdrOrder(t *testing.T) {
@@ -196,7 +279,7 @@ func TestStrayWorktreeIsDetachedInHerdrOrder(t *testing.T) {
 		At:          at(0),
 		Mode:        SortOff,
 		HostGrouped: true,
-		Policy:      DefaultDisplayPolicy(),
+		Policy:      spaced(),
 		Workspaces:  s.workspaces,
 		Tabs:        s.tabs,
 		Agents:      s.agents,
@@ -223,7 +306,7 @@ func TestSecondPaneOfAWorkspaceIndents(t *testing.T) {
 	assert.Equal(t, []string{
 		"# root", "0 w0:p1",
 		"# └ a", "1 w1:p1", "2 w1:p2", "",
-	}, outline(s.build(SortActive, DefaultDisplayPolicy())))
+	}, outline(s.build(SortActive, spaced())))
 }
 
 func TestSplitCorners(t *testing.T) {

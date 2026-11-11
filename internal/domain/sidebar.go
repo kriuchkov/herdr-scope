@@ -407,7 +407,8 @@ func (b *rowBuilder) groups(ordered []orderEntry, stale map[WorkspaceID]bool) []
 			// when nothing of its family stays under it.
 			g := b.newGroup(ws, false, places[ws], stale)
 			g.Rows = []SidebarRow{b.row(e)}
-			g.Gap = b.in.Policy.GroupGap && !lone.Kept
+			// Gap marks where a block ends until spacing decides the blank rows.
+			g.Gap = !lone.Kept
 			groups = append(groups, g)
 			continue
 		}
@@ -418,9 +419,36 @@ func (b *rowBuilder) groups(ordered []orderEntry, stale map[WorkspaceID]bool) []
 		}
 		g := &groups[len(groups)-1]
 		g.Rows = append(g.Rows, b.row(e))
-		g.Gap = b.in.Policy.GroupGap && b.tails[e.agent.Pane] && !noGap[ws] && ws != ""
+		g.Gap = b.tails[e.agent.Pane] && !noGap[ws] && ws != ""
 	}
+	space(groups, b.in.Policy)
 	return groups
+}
+
+// space turns the block ends marked in Gap into blank rows. A block is a
+// workspace's rows or a whole family. With group_gap, a blank row ends each
+// block; with pack_single, not between two single blocks: one row under its
+// header or under a fold line, which the header already sets apart.
+func space(groups []SidebarGroup, policy DisplayPolicy) {
+	type block struct{ first, last int }
+	var blocks []block
+	first := 0
+	for i, g := range groups {
+		if g.Gap || i == len(groups)-1 {
+			blocks = append(blocks, block{first, i})
+			first = i + 1
+		}
+	}
+	// A synthesised parent row stands above the first group of its run: a
+	// third line.
+	single := func(b block) bool {
+		g := groups[b.first]
+		return policy.PackSingle && b.first == b.last && len(g.Rows) == 1 && g.OrphanRepo == ""
+	}
+	for n, b := range blocks {
+		packed := single(b) && (n+1 == len(blocks) || single(blocks[n+1]))
+		groups[b.last].Gap = policy.GroupGap && groups[b.last].Gap && !packed
+	}
 }
 
 // place is where a workspace's header sits in its family's block.

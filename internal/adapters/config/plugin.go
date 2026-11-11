@@ -278,6 +278,7 @@ func (p *parser) policy(policy *domain.DisplayPolicy, layout ports.Layout) {
 		policy.GroupIndent = int(math.Round(clamp(p, "group_indent", v, 0, domain.MaxGroupIndent)))
 	}
 	policy.GroupGap = p.boolean("group_gap", groupGapDefault(layout))
+	policy.PackSingle = p.boolean("pack_single", true)
 	policy.SplitCorner = p.boolean("split_corner", false)
 	policy.NestFolders = p.boolean("nest_folders", true)
 	policy.MarkTabs = p.boolean("mark_tabs", true)

@@ -237,7 +237,7 @@ func TestFamilyWithoutAParentStaysOneBlock(t *testing.T) {
 
 func nestedInput(s *scenario) SidebarView {
 	return BuildSidebar(SidebarInput{
-		At: at(0), Mode: SortActive, Policy: DefaultDisplayPolicy(),
+		At: at(0), Mode: SortActive, Policy: spaced(),
 		Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
 	})
 }

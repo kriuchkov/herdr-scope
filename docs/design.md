@@ -60,6 +60,10 @@ session.
   rows it marks (seen).
 - **No blank line inside a family.** One between siblings left `├─` pointing at an empty row
   (seen). `compact` drops the gap between groups too.
+- **Workspaces with one agent pack** (`pack_single`). A blank row after each tripled the
+  column (seen); the header already parts them. Putting the name on the agent's line instead
+  read badly (seen): Herdr cuts every cell on its own and puts ` · ` between them. A group of
+  several agents, a family included, keeps its blank rows.
 - **An unknown agent kind wears `❖`.** The row keeps its shape and nobody mistakes it for
   another vendor.
 

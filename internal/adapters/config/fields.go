@@ -223,6 +223,8 @@ func Fields() []Field {
 		),
 		boolField("group_gap", "A blank row between workspace groups.",
 			func(s ports.Settings) bool { return s.Policy.GroupGap }, func(s *ports.Settings, b bool) { s.Policy.GroupGap = b }),
+		boolField("pack_single", "No blank row between workspaces that show one agent each; groups of several agents keep theirs.",
+			func(s ports.Settings) bool { return s.Policy.PackSingle }, func(s *ports.Settings, b bool) { s.Policy.PackSingle = b }),
 		boolField("split_corner", "Hang the other panes of a split screen off the first with a corner; off draws them as plain rows.",
 			func(s ports.Settings) bool { return s.Policy.SplitCorner }, func(s *ports.Settings, b bool) { s.Policy.SplitCorner = b }),
 		showAgeField(),

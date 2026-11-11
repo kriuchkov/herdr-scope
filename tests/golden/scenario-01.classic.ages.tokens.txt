@@ -12,7 +12,6 @@ Agents
    {gap}
  notes{group}
    ❖{logo_unknown}
-   {gap}
 
 Spaces
  §{space_working_claude} · dashboard{space_label}

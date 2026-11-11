@@ -8,7 +8,6 @@ Agents
    {gap}
  other{group}
    §{logo_fresh} · parked{title_idle_fresh}
-   {gap}
 
 Spaces
  ◦{space_none} · proj{space_label}

@@ -7,13 +7,10 @@ Agents
 
  other
    § · t3
-
   hotfix
    § · t4
-
  scratch
    § · t5
-
 
 Spaces
  § · app

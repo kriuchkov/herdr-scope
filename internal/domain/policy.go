@@ -52,6 +52,9 @@ type DisplayPolicy struct {
 	GroupIndent int
 	// GroupGap puts a blank row between groups.
 	GroupGap bool
+	// PackSingle drops the blank row between two blocks that show one agent
+	// each; GroupGap still parts a group of several agents.
+	PackSingle bool
 	// SplitCorner hangs the other panes of a split screen off the first.
 	SplitCorner bool
 	// NestFolders hangs a workspace opened inside another workspace's folder
@@ -86,6 +89,7 @@ func DefaultDisplayPolicy() DisplayPolicy {
 		TrimGroupPrefix: true,
 		GroupIndent:     2,
 		GroupGap:        true,
+		PackSingle:      true,
 		SplitCorner:     false,
 		NestFolders:     true,
 		MarkTabs:        true,

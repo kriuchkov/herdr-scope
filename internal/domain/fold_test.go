@@ -28,7 +28,7 @@ func (s *scenario) folded(mode SortMode, focused WorkspaceID, roots ...Workspace
 		folded[root] = true
 	}
 	return BuildSidebar(SidebarInput{
-		At: at(0), Mode: mode, Policy: DefaultDisplayPolicy(), Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
+		At: at(0), Mode: mode, Policy: spaced(), Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
 		Folded: folded, Focused: focused,
 	})
 }
@@ -169,7 +169,7 @@ func TestAVisitOpensFromTheLineAndEndsWhenTheFocusLeaves(t *testing.T) {
 func TestAFamilyOpenForAVisitShowsWhole(t *testing.T) {
 	s := folderScenario()
 	v := BuildSidebar(SidebarInput{
-		At: at(0), Mode: SortActive, Policy: DefaultDisplayPolicy(), Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
+		At: at(0), Mode: SortActive, Policy: spaced(), Workspaces: s.workspaces, Tabs: s.tabs, Agents: s.agents,
 		Folded: map[WorkspaceID]bool{"acme": true}, Opened: map[WorkspaceID]bool{"acme": true}, Focused: "billing",
 	})
 	assert.Equal(t, []string{

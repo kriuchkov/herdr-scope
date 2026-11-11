@@ -21,6 +21,7 @@ daemon applies it at once. Hand edits are picked up within two seconds.
 | `show_age` | `waiting` | time in the state before the title: `waiting` on rows waiting on you (`? 4m`), `all`, or `off` |
 | `group_indent` | `2` | spaces per tree level; `0` draws no tree lines |
 | `group_gap` | `true` (`false` in `compact`) | a blank row between groups |
+| `pack_single` | `true` | no blank row between workspaces that show one agent each; groups of several agents keep theirs |
 | `split_corner` | `false` | hang a split's other panes off the first with a corner |
 | `nest_folders` | `true` | hang a workspace opened inside another one's folder under it, and keep it right below it in Herdr's list |
 | `reorder_workspaces` | `false` | make Herdr's workspace order follow Scope's |

@@ -27,8 +27,8 @@ prompts or stops an agent.
 
 - **State at a glance**: a spinner while an agent works, a red `?` when it asks, a green `✓`
   held until you look, and idle rows that fade with age.
-- **Grouped by project**: worktrees and nested folders hang under their repository, and the
-  busiest group comes first.
+- **Grouped by project**: worktrees and nested folders hang under their repository, the
+  busiest group comes first, and workspaces with one agent follow without blank rows.
 - **Vendor marks**: 27 agents, each with its own mark and colour, from the icon font or plain
   Unicode.
 - **Jump**: `prefix+u` goes to the next agent waiting on you.

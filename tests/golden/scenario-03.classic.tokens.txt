@@ -7,13 +7,10 @@ Agents
    {gap}
  other{group}
    §{logo_fresh} · t3{title_idle_fresh}
-   {gap}
   hotfix{group}
    §{logo_fresh} · t4{title_idle_fresh}
-   {gap}
  scratch{group}
    §{logo_fresh} · t5{title_idle_fresh}
-   {gap}
 
 Spaces
  §{space_idle} · app{space_label}

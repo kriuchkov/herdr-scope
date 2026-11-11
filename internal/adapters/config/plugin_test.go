@@ -81,6 +81,16 @@ func TestNestFoldersIsOnUnlessTurnedOff(t *testing.T) {
 	assert.False(t, off.MovesWorkspaces())
 }
 
+func TestPackSingleIsOnInEitherLayout(t *testing.T) {
+	for _, text := range []string{"", "layout = \"compact\"\n"} {
+		s, _ := Parse(text)
+		assert.True(t, s.Policy.PackSingle, "%q", text)
+	}
+	field, ok := fieldByName("pack_single")
+	require.True(t, ok, "the settings popup offers it")
+	assert.Equal(t, "true", field.Default(ports.DefaultSettings()))
+}
+
 func TestTopLevelKeysFile(t *testing.T) {
 	s, warnings := Parse(`
 variant = "text"
@@ -91,6 +101,7 @@ activity_fresh_minutes = 5
 activity_stale_minutes = 60
 group_indent = 0
 group_gap = false
+pack_single = false
 split_corner = true
 show_tab = true
 trim_group_prefix = false
@@ -115,6 +126,7 @@ done = "✔"
 	assert.Equal(t, time.Hour, s.Policy.StaleAfter)
 	assert.Zero(t, s.Policy.GroupIndent)
 	assert.False(t, s.Policy.GroupGap)
+	assert.False(t, s.Policy.PackSingle)
 	assert.True(t, s.Policy.SplitCorner)
 	assert.Equal(t, domain.RowLabelBoth, s.Policy.RowLabel, "show_tab = true reads as both")
 	assert.False(t, s.Policy.TrimGroupPrefix)
