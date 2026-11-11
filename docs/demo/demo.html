@@ -22,7 +22,7 @@ html, body { margin: 0; background: #000; }
 <body>
 <div id="screen"></div>
 <script>
-const COLS = 96, ROWS = 31, SIDE = 34, PANE = SIDE + 1;
+const COLS = 96, ROWS = 37, SIDE = 34, PANE = SIDE + 1;
 const STEP_MS = 150, FRAMES = 100;
 
 // Herdr's catppuccin chrome and Scope's dark palette as shipped.
@@ -47,10 +47,13 @@ const KEYS = [
   { at: T.unfold, key: 'ctrl+b m', says: 'unfold it' },
 ];
 
-// Two families: acme, a folder of repositories, and dashboard with a worktree.
+// Two families: acme, a folder of repositories, and dashboard with a worktree;
+// then notes and docs, one agent each, which pack (pack_single).
 const FAMILIES = [
   { root: 'acme', members: ['acme', 'web', 'api', 'billing', 'search'] },
   { root: 'dashboard', members: ['dashboard', 'limits'] },
+  { root: 'notes', members: ['notes'] },
+  { root: 'docs', members: ['docs'] },
 ];
 const SPACES = [
   { ws: 'acme', path: '~/src/acme' },
@@ -60,6 +63,8 @@ const SPACES = [
   { ws: 'search', parent: 'acme', path: '~/src/acme/search' },
   { ws: 'dashboard', toggle: true, path: '~/src/dashboard' },
   { ws: 'limits', worktree: 'rate-limits', path: '~/src/dashboard-limits' },
+  { ws: 'notes', path: '~/notes' },
+  { ws: 'docs', path: '~/src/docs' },
 ];
 
 function scene(f) {
@@ -75,6 +80,8 @@ function scene(f) {
       { ws: 'search', kind: 'codex', st: 'idle', title: 'Tune the ranking' },
       { ws: 'dashboard', kind: 'claude', st: 'fresh', title: 'Add API rate limits' },
       { ws: 'limits', kind: 'codex', st: f >= T.ask && f < T.answer ? 'blocked' : 'working', title: 'Cache search results' },
+      { ws: 'notes', kind: 'claude', st: 'fresh', title: 'Draft the release notes' },
+      { ws: 'docs', kind: 'gemini', st: 'idle', title: 'Update the API reference' },
     ],
   };
 }
@@ -135,19 +142,22 @@ function frame(f) {
     }
     if (sp.toggle) put(row, SIDE - 2, '▾', C.accent);
   });
-  put(10, 1, 'new', C.o0);
-  put(10, SIDE - 5, 'menu', C.o0);
-  put(11, 0, '─'.repeat(SIDE), C.rule);
-  put(12, 1, 'agents', C.head, true);
-  put(12, SIDE - 7, 'active', C.accent, true);
+  const below = 3 + SPACES.length;
+  put(below, 1, 'new', C.o0);
+  put(below, SIDE - 5, 'menu', C.o0);
+  put(below + 1, 0, '─'.repeat(SIDE), C.rule);
+  put(below + 2, 1, 'agents', C.head, true);
+  put(below + 2, SIDE - 7, 'active', C.accent, true);
 
   // Agents: each entry is its lines, and the focused one is filled whole. A
   // folded family is one line, `▸ acme · Λ ⣯ +4`: how many it hides, behind
   // the logo and spinner of one at work. Who waits on you and the focus stay.
+  // A blank row ends each family, except between two of one agent each.
   const row = (a, indent) => [indent, [[LOGO[a.kind], logoFg(a)], [lead(a, step) + a.title, titleFg(a), a.st === 'working']]];
+  const single = (fam) => fam && fam.members.length === 1;
   const entries = [];
   FAMILIES.forEach((fam, gi) => {
-    const last = gi === FAMILIES.length - 1;
+    const tight = gi === FAMILIES.length - 1 || (single(fam) && single(FAMILIES[gi + 1]));
     const folded = s.folded && fam.root === 'acme';
     const members = fam.members.map(agentOf);
     const shown = members.filter((a) => !folded || waiting(a) || a.ws === s.focus);
@@ -156,7 +166,7 @@ function frame(f) {
       const busy = hidden.find((a) => a.st === 'working');
       const count = (busy ? LOGO[busy.kind] + ' ' + SPIN[step % SPIN.length] + ' ' : '') + '+' + hidden.length;
       const fold = { lines: [[1, [['▸ ' + fam.root, S.subtle, true], [count, busy ? brand(busy.kind) : S.stale]]]] };
-      if (!shown.length && !last) fold.lines.push(null);
+      if (!shown.length && !tight) fold.lines.push(null);
       entries.push(fold);
     }
     shown.forEach((a, i) => {
@@ -171,11 +181,11 @@ function frame(f) {
         lines.push([3, [[(more ? '├─ ' : '└─ ') + label, S.subtle, true]]]);
         lines.push(row(a, 5));
       }
-      if (i === shown.length - 1 && !last) lines.push(null);
+      if (i === shown.length - 1 && !tight) lines.push(null);
       entries.push({ ws: a.ws, lines });
     });
   });
-  let r = 14;
+  let r = below + 4;
   entries.forEach((e) => e.lines.forEach((l) => {
     if (e.ws === s.focus) fill(r, 0, SIDE, C.focus);
     if (l) line(r, l[0], l[1]);
